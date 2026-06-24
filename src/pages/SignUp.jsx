@@ -5,9 +5,6 @@ import heroImage from '../assets/hero.png'
 export default function SignUp() {
   const viewportRef = useRef(null)
   const [currentStep, setCurrentStep] = useState(1)
-  const [paymentMethod, setPaymentMethod] = useState('credit-card')
-  const [submissionStatus, setSubmissionStatus] = useState(null)
-  const [submissionAttempt, setSubmissionAttempt] = useState(0)
   const [scrollIndicator, setScrollIndicator] = useState({
     height: 20,
     top: 0,
@@ -55,14 +52,6 @@ export default function SignUp() {
   const handleSubmit = (event) => {
     event.preventDefault()
     setCurrentStep((step) => Math.min(step + 1, 4))
-  }
-
-  const handleFinalSubmit = (event) => {
-    event.preventDefault()
-
-    const nextAttempt = submissionAttempt + 1
-    setSubmissionAttempt(nextAttempt)
-    setSubmissionStatus(nextAttempt % 2 === 1 ? 'success' : 'failed')
   }
 
   return (
@@ -268,10 +257,10 @@ export default function SignUp() {
                 </button>
               </div>
             </form>
-          ) : currentStep === 3 ? (
+          ) : (
             <form
-              className="signup-form-screen signup-form-screen--step-two signup-form-screen--payment"
-              onSubmit={handleSubmit}
+              className="signup-form-screen signup-form-screen--step-two"
+              onSubmit={(event) => event.preventDefault()}
             >
               <div className="signup-step-row" aria-label="Current sign up step">
                 <div className="signup-step-badge">
@@ -281,81 +270,45 @@ export default function SignUp() {
                 </div>
                 <div className="signup-step-copy">
                   <span className="signup-step-copy__label">Step 3</span>
-                  <strong>Payment and Billing Details</strong>
+                  <strong>Security and Access</strong>
                 </div>
               </div>
 
-              <div className="signup-step-payment">
-                <div className="signup-step-payment__section">
-                  <h3>Payment Method</h3>
-                </div>
-
-                <div className="signup-payment-methods" role="radiogroup" aria-label="Payment Method">
-                  <button
-                    type="button"
-                    className={`signup-payment-card ${paymentMethod === 'credit-card' ? 'signup-payment-card--active' : ''}`}
-                    onClick={() => setPaymentMethod('credit-card')}
-                    aria-pressed={paymentMethod === 'credit-card'}
-                  >
-                    <span className="signup-payment-card__icon signup-payment-card__icon--credit" aria-hidden="true">
-                      <span className="signup-payment-card__credit-line" />
-                      <span className="signup-payment-card__credit-dot" />
-                    </span>
-                    <span className="signup-payment-card__label">Credit Card</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className={`signup-payment-card ${paymentMethod === 'wallet' ? 'signup-payment-card--active' : ''}`}
-                    onClick={() => setPaymentMethod('wallet')}
-                    aria-pressed={paymentMethod === 'wallet'}
-                  >
-                    <span className="signup-payment-card__icon signup-payment-card__icon--wallet" aria-hidden="true">
-                      <span className="signup-payment-card__wallet-body" />
-                      <span className="signup-payment-card__wallet-tab" />
-                    </span>
-                    <span className="signup-payment-card__label">Digital Wallet</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className={`signup-payment-card ${paymentMethod === 'debit' ? 'signup-payment-card--active' : ''}`}
-                    onClick={() => setPaymentMethod('debit')}
-                    aria-pressed={paymentMethod === 'debit'}
-                  >
-                    <span className="signup-payment-card__icon signup-payment-card__icon--debit" aria-hidden="true">
-                      <span className="signup-payment-card__debit-card" />
-                      <span className="signup-payment-card__debit-shield" />
-                    </span>
-                    <span className="signup-payment-card__label">Direct Debit</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className={`signup-payment-card ${paymentMethod === 'upi' ? 'signup-payment-card--active signup-payment-card--upi' : 'signup-payment-card--upi'}`}
-                    onClick={() => setPaymentMethod('upi')}
-                    aria-pressed={paymentMethod === 'upi'}
-                  >
-                    <span className="signup-payment-card__upi-mark" aria-hidden="true">
-                      <span className="signup-payment-card__upi-logo">UPI</span>
-                      <span className="signup-payment-card__upi-tag">UPI</span>
-                    </span>
-                  </button>
-                </div>
-
-                <label className="signup-field signup-field--payment">
-                  <span className="sr-only">Cardholder Name</span>
-                  <input type="text" placeholder="Cardholder Name*" />
+              <div className="signup-step-two">
+                <label className="signup-field">
+                  <span className="sr-only">Email Address</span>
+                  <input type="email" placeholder="Email Address*" />
                 </label>
 
-                <label className="signup-field signup-field--payment signup-field--payment-brand">
-                  <span className="sr-only">Card Number</span>
-                  <input type="text" placeholder="Card Number*" />
-                  <span className="signup-card-brand" aria-hidden="true">
-                    <span className="signup-card-brand__circle signup-card-brand__circle--red" />
-                    <span className="signup-card-brand__circle signup-card-brand__circle--yellow" />
-                  </span>
+                <label className="signup-field">
+                  <span className="sr-only">Mobile Number</span>
+                  <input type="tel" placeholder="Mobile Number*" />
                 </label>
+
+                <label className="signup-field">
+                  <span className="sr-only">Create Password</span>
+                  <input type="password" placeholder="Create Password*" />
+                </label>
+
+                <label className="signup-field">
+                  <span className="sr-only">Confirm Password</span>
+                  <input type="password" placeholder="Confirm Password*" />
+                </label>
+
+                <div className="signup-step-two__section">
+                  <h3>Security Options</h3>
+                </div>
+
+                <div className="signup-option-list">
+                  <label className="signup-option">
+                    <input type="checkbox" defaultChecked />
+                    <span>Enable two-factor authentication</span>
+                  </label>
+                  <label className="signup-option">
+                    <input type="checkbox" />
+                    <span>Receive sign-in alerts by email</span>
+                  </label>
+                </div>
               </div>
 
               <div className="signup-step-two__actions">
@@ -371,61 +324,6 @@ export default function SignUp() {
                 </button>
               </div>
             </form>
-          ) : (
-            <form
-              className="signup-form-screen signup-form-screen--step-two signup-form-screen--final"
-              onSubmit={handleFinalSubmit}
-            >
-              <div className="signup-step-row" aria-label="Current sign up step">
-                <div className="signup-step-badge">
-                  <div className="signup-step-badge__ring signup-step-badge__ring--step-four">
-                    <span>4</span>
-                  </div>
-                </div>
-                <div className="signup-step-copy">
-                  <span className="signup-step-copy__label">Step 4</span>
-                  <strong>Authorization and Submission</strong>
-                </div>
-              </div>
-
-              <div className="signup-step-final">
-                <button type="button" className="signup-download-card">
-                  <span className="signup-download-card__icon" aria-hidden="true">
-                    <span className="signup-download-card__sheet" />
-                    <span className="signup-download-card__line signup-download-card__line--top" />
-                    <span className="signup-download-card__line signup-download-card__line--bottom" />
-                  </span>
-                  <span>Download The Authorization Form</span>
-                </button>
-
-                <div className="signup-step-final__section">
-                  <h3>Authorization Form</h3>
-                </div>
-
-                <button type="button" className="signup-upload-card">
-                  <span className="signup-upload-card__icon" aria-hidden="true">
-                    <span className="signup-upload-card__file" />
-                    <span className="signup-upload-card__file-fold" />
-                    <span className="signup-upload-card__upload-ring" />
-                    <span className="signup-upload-card__upload-arrow" />
-                  </span>
-                  <span>Upload or drag and drop your form file here.</span>
-                </button>
-              </div>
-
-              <div className="signup-step-two__actions">
-                <button
-                  className="signup-panel__button signup-panel__button--secondary"
-                  type="button"
-                  onClick={() => setCurrentStep(3)}
-                >
-                  Back
-                </button>
-                <button className="signup-panel__button" type="submit">
-                  Submit
-                </button>
-              </div>
-            </form>
           )}
 
           <p className="signup-panel__footer">
@@ -433,57 +331,6 @@ export default function SignUp() {
           </p>
         </section>
       </section>
-
-      {submissionStatus ? (
-        <div className="signup-modal-backdrop" role="presentation">
-          <section
-            className={`signup-modal signup-modal--${submissionStatus}`}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="signup-modal-title"
-          >
-            <p className="signup-modal__eyebrow">Account Creation confirmation</p>
-
-            <div className="signup-modal__card">
-              <div className="signup-modal__hero" aria-hidden="true">
-                <span className="signup-modal__dot signup-modal__dot--one" />
-                <span className="signup-modal__dot signup-modal__dot--two" />
-                <span className="signup-modal__dot signup-modal__dot--three" />
-                <span className="signup-modal__dot signup-modal__dot--four" />
-
-                <div className="signup-modal__status-icon">
-                  <span className="signup-modal__status-ring" />
-                  {submissionStatus === 'success' ? (
-                    <span className="signup-modal__status-mark signup-modal__status-mark--success" />
-                  ) : (
-                    <span className="signup-modal__status-mark signup-modal__status-mark--failed" />
-                  )}
-                </div>
-              </div>
-
-              <div className="signup-modal__body">
-                <h3 id="signup-modal-title">
-                  {submissionStatus === 'success'
-                    ? 'Account created successfully'
-                    : 'Sorry!'}
-                </h3>
-                <p>
-                  {submissionStatus === 'success'
-                    ? 'Your account has been created successfully. Please check your email for the login credentials we just sent you.'
-                    : 'Your account creation has been failed. Please go back and try again'}
-                </p>
-                <button
-                  type="button"
-                  className="signup-modal__button"
-                  onClick={() => setSubmissionStatus(null)}
-                >
-                  Okay
-                </button>
-              </div>
-            </div>
-          </section>
-        </div>
-      ) : null}
     </main>
   )
 }
