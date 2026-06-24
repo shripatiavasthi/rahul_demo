@@ -3,10 +3,26 @@ import heroImage from '../assets/hero.png'
 
 const quickActions = [
   { title: 'Run Conflict', icon: 'cube' },
-  { title: 'Open Files', icon: 'folder', active: true },
-  { title: 'Workstation', icon: 'briefcase', active: true },
+  { title: 'Open Files', icon: 'folder' },
+  { title: 'Workstation', icon: 'briefcase' },
   { title: 'Quick Search', icon: 'search' },
   { title: 'Advance Search', icon: 'filter' },
+]
+
+const fileTree = [
+  {
+    label: "File Information's",
+    expanded: true,
+    children: [
+      { label: 'Details', active: true, icon: 'folder-open' },
+      { label: 'Parties', icon: 'folder' },
+      { label: 'Property', icon: 'folder-doc' },
+      { label: 'Solicitor', icon: 'folder-plus' },
+      { label: 'Brokerage & Referral', icon: 'folder-plus' },
+      { label: 'Checklist', icon: 'folder-doc' },
+    ],
+  },
+  { label: 'Mortgagee', icon: 'folder' },
 ]
 
 const closings = [
@@ -107,6 +123,26 @@ function Icon({ name, className = '' }) {
           <path d="M3.5 8.5A2.5 2.5 0 0 1 6 6h4l2 2H18a2.5 2.5 0 0 1 2.5 2.5v5A2.5 2.5 0 0 1 18 18H6a2.5 2.5 0 0 1-2.5-2.5z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
         </svg>
       )
+    case 'folder-open':
+      return (
+        <svg viewBox="0 0 24 24" className={classes} aria-hidden="true">
+          <path d="M3.5 8A2.5 2.5 0 0 1 6 5.5h4l1.8 2H18a2.5 2.5 0 0 1 2.3 1.5l-1.6 6A2.5 2.5 0 0 1 16.3 17H6a2.5 2.5 0 0 1-2.4-3l1.3-4.5A2 2 0 0 1 6.8 8z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+        </svg>
+      )
+    case 'folder-doc':
+      return (
+        <svg viewBox="0 0 24 24" className={classes} aria-hidden="true">
+          <path d="M3.5 8.5A2.5 2.5 0 0 1 6 6h4l2 2H18a2.5 2.5 0 0 1 2.5 2.5v5A2.5 2.5 0 0 1 18 18H6a2.5 2.5 0 0 1-2.5-2.5z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+          <path d="M10 11.5h5M10 14.5h3" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+      )
+    case 'folder-plus':
+      return (
+        <svg viewBox="0 0 24 24" className={classes} aria-hidden="true">
+          <path d="M3.5 8.5A2.5 2.5 0 0 1 6 6h4l2 2H18a2.5 2.5 0 0 1 2.5 2.5v5A2.5 2.5 0 0 1 18 18H6a2.5 2.5 0 0 1-2.5-2.5z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+          <path d="M16.5 10.5v5M14 13h5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+      )
     case 'briefcase':
       return (
         <svg viewBox="0 0 24 24" className={classes} aria-hidden="true">
@@ -201,6 +237,33 @@ function Icon({ name, className = '' }) {
           <path d="M14 4.5V9h4M8.5 12.5l2 2 4.5-4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       )
+    case 'save':
+      return (
+        <svg viewBox="0 0 24 24" className={classes} aria-hidden="true">
+          <path d="M5 4.5h11l3 3V19a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+          <path d="M8 4.5v5h7v-5M9 15h6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )
+    case 'close':
+      return (
+        <svg viewBox="0 0 24 24" className={classes} aria-hidden="true">
+          <path d="m7 7 10 10M17 7 7 17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      )
+    case 'plus-circle':
+      return (
+        <svg viewBox="0 0 24 24" className={classes} aria-hidden="true">
+          <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M12 8v8M8 12h8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        </svg>
+      )
+    case 'calendar':
+      return (
+        <svg viewBox="0 0 24 24" className={classes} aria-hidden="true">
+          <rect x="4" y="6" width="16" height="14" rx="3" fill="none" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M8 4.5v3M16 4.5v3M4 10h16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        </svg>
+      )
     default:
       return null
   }
@@ -264,8 +327,129 @@ function TableCard({ title, count, rows }) {
   )
 }
 
+function OpenFilesWorkspace() {
+  return (
+    <section className="dashboard-open-files">
+      <header className="dashboard-open-files__toolbar">
+        <div className="dashboard-open-files__toolbar-left">
+          <button type="button" className="dashboard-open-files__home-button" aria-label="Open files home">
+            <Icon name="home" />
+          </button>
+          <button type="button" className="dashboard-open-files__add-button">
+            <Icon name="plus-circle" />
+            <span>Add New</span>
+          </button>
+          <div className="dashboard-open-files__tabs">
+            <button type="button" className="dashboard-open-files__tab dashboard-open-files__tab--active">
+              <span>File Name Here</span>
+              <Icon name="close" />
+            </button>
+            <button type="button" className="dashboard-open-files__tab">
+              <span>File Name Here</span>
+              <Icon name="close" />
+            </button>
+          </div>
+        </div>
+
+        <div className="dashboard-open-files__toolbar-right">
+          <label className="dashboard-open-files__search">
+            <Icon name="search" />
+            <input type="search" placeholder="Search from existing files..." />
+          </label>
+          <button type="button" className="dashboard-open-files__save-button">
+            <Icon name="save" />
+            <span>Save</span>
+          </button>
+        </div>
+      </header>
+
+      <div className="dashboard-open-files__body">
+        <aside className="dashboard-open-files__sidebar">
+          {fileTree.map((section) =>
+            section.children ? (
+              <div className="dashboard-open-files__tree-group" key={section.label}>
+                <button type="button" className="dashboard-open-files__tree-parent">
+                  <Icon name="folder" />
+                  <span>{section.label}</span>
+                  <span className="dashboard-open-files__tree-toggle">-</span>
+                </button>
+                <div className="dashboard-open-files__tree-children">
+                  {section.children.map((item) => (
+                    <button
+                      type="button"
+                      key={item.label}
+                      className={`dashboard-open-files__tree-item ${item.active ? 'dashboard-open-files__tree-item--active' : ''}`}
+                    >
+                      <Icon name={item.icon} />
+                      <span>{item.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <button type="button" className="dashboard-open-files__tree-parent" key={section.label}>
+                <Icon name={section.icon} />
+                <span>{section.label}</span>
+              </button>
+            ),
+          )}
+        </aside>
+
+        <section className="dashboard-open-files__content">
+          <div className="dashboard-open-files__panel">
+            <div className="dashboard-open-files__section-tag">Details</div>
+
+            <div className="dashboard-open-files__form-grid">
+              <label className="dashboard-open-files__field dashboard-open-files__field--select">
+                <input type="text" placeholder="File Type" />
+                <Icon name="chevron-right" className="dashboard-open-files__field-icon dashboard-open-files__field-icon--down" />
+              </label>
+              <label className="dashboard-open-files__field dashboard-open-files__field--select">
+                <input type="text" placeholder="File Status" />
+                <Icon name="chevron-right" className="dashboard-open-files__field-icon dashboard-open-files__field-icon--down" />
+              </label>
+              <label className="dashboard-open-files__field">
+                <input type="text" placeholder="File no." />
+              </label>
+              <label className="dashboard-open-files__field">
+                <input type="text" placeholder="Teraview file no." />
+              </label>
+
+              <label className="dashboard-open-files__field">
+                <input type="text" placeholder="Conflict Search date" />
+                <Icon name="calendar" className="dashboard-open-files__field-icon" />
+              </label>
+              <label className="dashboard-open-files__field dashboard-open-files__field--select">
+                <input type="text" placeholder="Acting for" />
+                <Icon name="chevron-right" className="dashboard-open-files__field-icon dashboard-open-files__field-icon--down" />
+              </label>
+              <label className="dashboard-open-files__field dashboard-open-files__field--select">
+                <input type="text" placeholder="Barrister & Solicitor Name" />
+                <Icon name="chevron-right" className="dashboard-open-files__field-icon dashboard-open-files__field-icon--down" />
+              </label>
+              <label className="dashboard-open-files__field dashboard-open-files__field--select">
+                <input type="text" placeholder="Clerk Name" />
+                <Icon name="chevron-right" className="dashboard-open-files__field-icon dashboard-open-files__field-icon--down" />
+              </label>
+
+              <label className="dashboard-open-files__field dashboard-open-files__field--select">
+                <input type="text" placeholder="Witness/Notary Name" />
+                <Icon name="chevron-right" className="dashboard-open-files__field-icon dashboard-open-files__field-icon--down" />
+              </label>
+              <label className="dashboard-open-files__field">
+                <input type="text" placeholder="Commissioner Name" />
+              </label>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+  )
+}
+
 export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [workspaceView, setWorkspaceView] = useState('dashboard')
 
   return (
     <main className="dashboard-shell">
@@ -319,171 +503,184 @@ export default function Home() {
         </header>
 
         <div
-          className={`dashboard-layout ${isSidebarOpen ? '' : 'dashboard-layout--sidebar-closed'}`.trim()}
+          className={`dashboard-layout ${isSidebarOpen ? '' : 'dashboard-layout--sidebar-closed'} ${workspaceView === 'open-files' ? 'dashboard-layout--open-files' : ''}`.trim()}
         >
-          <aside
-            className={`dashboard-sidebar ${isSidebarOpen ? '' : 'dashboard-sidebar--closed'}`.trim()}
-          >
-            <div className="dashboard-sidebar__rail">
-              <button type="button" className="dashboard-sidebar__avatar dashboard-sidebar__avatar--active" aria-label="Home">
-                <Icon name="home" />
-              </button>
-              <button type="button" className="dashboard-sidebar__avatar" aria-label="Integrations">
-                <Icon name="integrations" />
-              </button>
-              <button type="button" className="dashboard-sidebar__avatar" aria-label="Users">
-                <Icon name="users" />
-              </button>
-              <button type="button" className="dashboard-sidebar__avatar dashboard-sidebar__avatar--settings" aria-label="Settings">
-                <Icon name="settings" />
-              </button>
-            </div>
-
-            <button
-              type="button"
-              className={`dashboard-sidebar__collapse ${isSidebarOpen ? '' : 'dashboard-sidebar__collapse--closed'}`.trim()}
-              aria-label={isSidebarOpen ? 'Collapse menu' : 'Expand menu'}
-              aria-expanded={isSidebarOpen}
-              onClick={() => setIsSidebarOpen((currentState) => !currentState)}
+          {workspaceView !== 'open-files' ? (
+            <aside
+              className={`dashboard-sidebar ${isSidebarOpen ? '' : 'dashboard-sidebar--closed'}`.trim()}
             >
-              <Icon name="chevron-right" />
-            </button>
-
-            <nav
-              className="dashboard-sidebar__menu"
-              aria-label="Primary"
-              aria-hidden={!isSidebarOpen}
-            >
-              <button type="button" className="dashboard-nav-item dashboard-nav-item--active">
-                <span className="dashboard-nav-item__icon">
+              <div className="dashboard-sidebar__rail">
+                <button type="button" className="dashboard-sidebar__avatar dashboard-sidebar__avatar--active" aria-label="Home">
                   <Icon name="home" />
-                </span>
-                <span>Home</span>
-              </button>
-              <button type="button" className="dashboard-nav-item">
-                <span className="dashboard-nav-item__icon">
+                </button>
+                <button type="button" className="dashboard-sidebar__avatar" aria-label="Integrations">
                   <Icon name="integrations" />
-                </span>
-                <span>Integrations</span>
-              </button>
-              <button type="button" className="dashboard-nav-item">
-                <span className="dashboard-nav-item__icon">
+                </button>
+                <button type="button" className="dashboard-sidebar__avatar" aria-label="Users">
                   <Icon name="users" />
-                </span>
-                <span>Users</span>
-              </button>
-              <button type="button" className="dashboard-nav-item dashboard-nav-item--settings">
-                <span className="dashboard-nav-item__icon">
+                </button>
+                <button type="button" className="dashboard-sidebar__avatar dashboard-sidebar__avatar--settings" aria-label="Settings">
                   <Icon name="settings" />
-                </span>
-                <span>Settings</span>
-              </button>
-            </nav>
-          </aside>
-
-          <section className="dashboard-actions dashboard-panel">
-            <div className="dashboard-actions__list">
-              {quickActions.map((action) => (
-                <button
-                  key={action.title}
-                  type="button"
-                  className={`dashboard-action-card ${action.active ? 'dashboard-action-card--active' : ''}`}
-                >
-                  <span className="dashboard-action-card__accent" aria-hidden="true" />
-                  <span className="dashboard-action-card__icon">
-                    <Icon name={action.icon} />
-                  </span>
-                  <span className="dashboard-action-card__label">{action.title}</span>
-                  <span className="dashboard-action-card__arrow">
-                    <Icon name="arrow" />
-                  </span>
                 </button>
-              ))}
-            </div>
-
-            <div className="dashboard-shortcuts">
-              <button type="button" className="dashboard-shortcut dashboard-shortcut--task">
-                <span className="dashboard-shortcut__icon">
-                  <Icon name="task" />
-                </span>
-                <span>Assign Task</span>
-              </button>
-              <button type="button" className="dashboard-shortcut dashboard-shortcut--report">
-                <span className="dashboard-shortcut__icon">
-                  <Icon name="report" />
-                </span>
-                <span>Generate Report</span>
-              </button>
-            </div>
-          </section>
-
-          <section className="dashboard-main">
-            <TableCard title="Closings" count={16} rows={closings} />
-            <TableCard title="Requisitions" count={9} rows={requisitions} />
-          </section>
-
-          <aside className="dashboard-sidepanel">
-            <section className="dashboard-panel dashboard-calendar">
-              <header className="dashboard-calendar__header">
-                <button type="button" className="dashboard-calendar__nav" aria-label="Previous month">
-                  <Icon name="chevron-left" />
-                </button>
-                <h2>September, 2024</h2>
-                <button type="button" className="dashboard-calendar__nav" aria-label="Next month">
-                  <Icon name="chevron-right" />
-                </button>
-              </header>
-
-              <div className="dashboard-calendar__weekdays" aria-hidden="true">
-                <span>Sun</span>
-                <span>Mon</span>
-                <span>Tue</span>
-                <span>Wed</span>
-                <span>Thu</span>
-                <span>Fri</span>
-                <span>Sat</span>
               </div>
 
-              <div className="dashboard-calendar__grid">
-                {calendarDays.flatMap((week, weekIndex) =>
-                  week.map((day, dayIndex) => (
-                    <span
-                      key={`${weekIndex}-${dayIndex}-${day || 'empty'}`}
-                      className={`dashboard-calendar__day ${day === 16 ? 'dashboard-calendar__day--active' : ''} ${day === '' ? 'dashboard-calendar__day--empty' : ''}`}
+              <button
+                type="button"
+                className={`dashboard-sidebar__collapse ${isSidebarOpen ? '' : 'dashboard-sidebar__collapse--closed'}`.trim()}
+                aria-label={isSidebarOpen ? 'Collapse menu' : 'Expand menu'}
+                aria-expanded={isSidebarOpen}
+                onClick={() => setIsSidebarOpen((currentState) => !currentState)}
+              >
+                <Icon name="chevron-right" />
+              </button>
+
+              <nav
+                className="dashboard-sidebar__menu"
+                aria-label="Primary"
+                aria-hidden={!isSidebarOpen}
+              >
+                <button type="button" className="dashboard-nav-item dashboard-nav-item--active">
+                  <span className="dashboard-nav-item__icon">
+                    <Icon name="home" />
+                  </span>
+                  <span>Home</span>
+                </button>
+                <button type="button" className="dashboard-nav-item">
+                  <span className="dashboard-nav-item__icon">
+                    <Icon name="integrations" />
+                  </span>
+                  <span>Integrations</span>
+                </button>
+                <button type="button" className="dashboard-nav-item">
+                  <span className="dashboard-nav-item__icon">
+                    <Icon name="users" />
+                  </span>
+                  <span>Users</span>
+                </button>
+                <button type="button" className="dashboard-nav-item dashboard-nav-item--settings">
+                  <span className="dashboard-nav-item__icon">
+                    <Icon name="settings" />
+                  </span>
+                  <span>Settings</span>
+                </button>
+              </nav>
+            </aside>
+          ) : null}
+
+          {workspaceView === 'open-files' ? (
+            <OpenFilesWorkspace />
+          ) : (
+            <>
+              <section className="dashboard-actions dashboard-panel">
+                <div className="dashboard-actions__list">
+                  {quickActions.map((action) => (
+                    <button
+                      key={action.title}
+                      type="button"
+                      className={`dashboard-action-card ${action.title === 'Workstation' ? 'dashboard-action-card--active' : ''}`}
+                      onClick={() => {
+                        if (action.title === 'Open Files') {
+                          setWorkspaceView('open-files')
+                        }
+                      }}
                     >
-                      {day}
-                    </span>
-                  )),
-                )}
-              </div>
-            </section>
+                      <span className="dashboard-action-card__accent" aria-hidden="true" />
+                      <span className="dashboard-action-card__icon">
+                        <Icon name={action.icon} />
+                      </span>
+                      <span className="dashboard-action-card__label">{action.title}</span>
+                      <span className="dashboard-action-card__arrow">
+                        <Icon name="arrow" />
+                      </span>
+                    </button>
+                  ))}
+                </div>
 
-            <section className="dashboard-help">
-              <img className="dashboard-help__background" src={heroImage} alt="" aria-hidden="true" />
-              <div className="dashboard-help__overlay" />
-              <div className="dashboard-help__content">
-                <span className="dashboard-help__icon">
-                  <Icon name="headset" />
-                </span>
-                <h2>Need Help?</h2>
-                <p>We are always here for your support.</p>
-                <div className="dashboard-help__actions">
-                  <button type="button" className="dashboard-help__button">
-                    <span>Remote Support</span>
-                    <Icon name="arrow" />
+                <div className="dashboard-shortcuts">
+                  <button type="button" className="dashboard-shortcut dashboard-shortcut--task">
+                    <span className="dashboard-shortcut__icon">
+                      <Icon name="task" />
+                    </span>
+                    <span>Assign Task</span>
                   </button>
-                  <button type="button" className="dashboard-help__button">
-                    <span>Chat with the Support Team</span>
-                    <Icon name="arrow" />
-                  </button>
-                  <button type="button" className="dashboard-help__button">
-                    <span>Chat with Staff Members</span>
-                    <Icon name="arrow" />
+                  <button type="button" className="dashboard-shortcut dashboard-shortcut--report">
+                    <span className="dashboard-shortcut__icon">
+                      <Icon name="report" />
+                    </span>
+                    <span>Generate Report</span>
                   </button>
                 </div>
-              </div>
-            </section>
-          </aside>
+              </section>
+
+              <section className="dashboard-main">
+                <TableCard title="Closings" count={16} rows={closings} />
+                <TableCard title="Requisitions" count={9} rows={requisitions} />
+              </section>
+
+              <aside className="dashboard-sidepanel">
+                <section className="dashboard-panel dashboard-calendar">
+                  <header className="dashboard-calendar__header">
+                    <button type="button" className="dashboard-calendar__nav" aria-label="Previous month">
+                      <Icon name="chevron-left" />
+                    </button>
+                    <h2>September, 2024</h2>
+                    <button type="button" className="dashboard-calendar__nav" aria-label="Next month">
+                      <Icon name="chevron-right" />
+                    </button>
+                  </header>
+
+                  <div className="dashboard-calendar__weekdays" aria-hidden="true">
+                    <span>Sun</span>
+                    <span>Mon</span>
+                    <span>Tue</span>
+                    <span>Wed</span>
+                    <span>Thu</span>
+                    <span>Fri</span>
+                    <span>Sat</span>
+                  </div>
+
+                  <div className="dashboard-calendar__grid">
+                    {calendarDays.flatMap((week, weekIndex) =>
+                      week.map((day, dayIndex) => (
+                        <span
+                          key={`${weekIndex}-${dayIndex}-${day || 'empty'}`}
+                          className={`dashboard-calendar__day ${day === 16 ? 'dashboard-calendar__day--active' : ''} ${day === '' ? 'dashboard-calendar__day--empty' : ''}`}
+                        >
+                          {day}
+                        </span>
+                      )),
+                    )}
+                  </div>
+                </section>
+
+                <section className="dashboard-help">
+                  <img className="dashboard-help__background" src={heroImage} alt="" aria-hidden="true" />
+                  <div className="dashboard-help__overlay" />
+                  <div className="dashboard-help__content">
+                    <span className="dashboard-help__icon">
+                      <Icon name="headset" />
+                    </span>
+                    <h2>Need Help?</h2>
+                    <p>We are always here for your support.</p>
+                    <div className="dashboard-help__actions">
+                      <button type="button" className="dashboard-help__button">
+                        <span>Remote Support</span>
+                        <Icon name="arrow" />
+                      </button>
+                      <button type="button" className="dashboard-help__button">
+                        <span>Chat with the Support Team</span>
+                        <Icon name="arrow" />
+                      </button>
+                      <button type="button" className="dashboard-help__button">
+                        <span>Chat with Staff Members</span>
+                        <Icon name="arrow" />
+                      </button>
+                    </div>
+                  </div>
+                </section>
+              </aside>
+            </>
+          )}
         </div>
       </div>
     </main>
