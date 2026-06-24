@@ -1,7 +1,7 @@
 export const appTheme = {
   fonts: {
     body:
-      "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      "Poppins, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
   },
   colors: {
     textPrimary: '#1f2e33',
