@@ -334,19 +334,20 @@ export default function Home() {
               <button type="button" className="dashboard-sidebar__avatar" aria-label="Users">
                 <Icon name="users" />
               </button>
-              <button
-                type="button"
-                className={`dashboard-sidebar__collapse ${isSidebarOpen ? '' : 'dashboard-sidebar__collapse--closed'}`.trim()}
-                aria-label={isSidebarOpen ? 'Collapse menu' : 'Expand menu'}
-                aria-expanded={isSidebarOpen}
-                onClick={() => setIsSidebarOpen((currentState) => !currentState)}
-              >
-                <Icon name="chevron-right" />
-              </button>
               <button type="button" className="dashboard-sidebar__avatar dashboard-sidebar__avatar--settings" aria-label="Settings">
                 <Icon name="settings" />
               </button>
             </div>
+
+            <button
+              type="button"
+              className={`dashboard-sidebar__collapse ${isSidebarOpen ? '' : 'dashboard-sidebar__collapse--closed'}`.trim()}
+              aria-label={isSidebarOpen ? 'Collapse menu' : 'Expand menu'}
+              aria-expanded={isSidebarOpen}
+              onClick={() => setIsSidebarOpen((currentState) => !currentState)}
+            >
+              <Icon name="chevron-right" />
+            </button>
 
             <nav
               className="dashboard-sidebar__menu"
