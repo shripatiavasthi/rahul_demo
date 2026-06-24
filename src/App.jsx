@@ -1,20 +1,19 @@
 import './App.css'
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import Login from './pages/Login'
+import About from './pages/About'
+import SignUp from './pages/SignUp'
 import Home from './pages/Home'
 
 function App() {
-
-   const About = () => {
-    return (
-      <div style={{background : 'blue'}}>
-        <p>ABout US</p>
-      </div>
-    )
-  }
   return (
     <Routes>
-      <Route path='/home' Component={Home}/>
-      <Route path="/about" Component={About} />
+      <Route path="/" element={<Login />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/home" element={<Home />} />
+      <Route path="/signup" element={<SignUp />} />
+      <Route path="/about" element={<About />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }
