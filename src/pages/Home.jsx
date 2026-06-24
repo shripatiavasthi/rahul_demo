@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import heroImage from '../assets/hero.png'
 
 const quickActions = [
@@ -264,6 +265,8 @@ function TableCard({ title, count, rows }) {
 }
 
 export default function Home() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+
   return (
     <main className="dashboard-shell">
       <div className="dashboard-frame">
@@ -315,8 +318,12 @@ export default function Home() {
           </div>
         </header>
 
-        <div className="dashboard-layout">
-          <aside className="dashboard-sidebar">
+        <div
+          className={`dashboard-layout ${isSidebarOpen ? '' : 'dashboard-layout--sidebar-closed'}`.trim()}
+        >
+          <aside
+            className={`dashboard-sidebar ${isSidebarOpen ? '' : 'dashboard-sidebar--closed'}`.trim()}
+          >
             <div className="dashboard-sidebar__rail">
               <button type="button" className="dashboard-sidebar__avatar dashboard-sidebar__avatar--active" aria-label="Home">
                 <Icon name="home" />
@@ -327,7 +334,13 @@ export default function Home() {
               <button type="button" className="dashboard-sidebar__avatar" aria-label="Users">
                 <Icon name="users" />
               </button>
-              <button type="button" className="dashboard-sidebar__collapse" aria-label="Collapse menu">
+              <button
+                type="button"
+                className={`dashboard-sidebar__collapse ${isSidebarOpen ? '' : 'dashboard-sidebar__collapse--closed'}`.trim()}
+                aria-label={isSidebarOpen ? 'Collapse menu' : 'Expand menu'}
+                aria-expanded={isSidebarOpen}
+                onClick={() => setIsSidebarOpen((currentState) => !currentState)}
+              >
                 <Icon name="chevron-right" />
               </button>
               <button type="button" className="dashboard-sidebar__avatar dashboard-sidebar__avatar--settings" aria-label="Settings">
@@ -335,7 +348,11 @@ export default function Home() {
               </button>
             </div>
 
-            <nav className="dashboard-sidebar__menu" aria-label="Primary">
+            <nav
+              className="dashboard-sidebar__menu"
+              aria-label="Primary"
+              aria-hidden={!isSidebarOpen}
+            >
               <button type="button" className="dashboard-nav-item dashboard-nav-item--active">
                 <span className="dashboard-nav-item__icon">
                   <Icon name="home" />
