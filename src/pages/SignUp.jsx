@@ -88,16 +88,10 @@ export default function SignUp() {
     }
   }, [currentStep])
 
-  useEffect(() => {
-    if (currentStep === 3) {
-      dispatch(setCurrentStep(4))
-    }
-  }, [currentStep, dispatch])
-
   const handleSubmit = (event) => {
     event.preventDefault()
     setSubmitError('')
-    dispatch(setCurrentStep(currentStep === 2 ? 4 : Math.min(currentStep + 1, 4)))
+    dispatch(setCurrentStep(Math.min(currentStep + 1, 4)))
   }
 
   const handleFieldChange = (event) => {
@@ -417,6 +411,125 @@ export default function SignUp() {
                 </AppButton>
               </div>
             </form>
+          ) : currentStep === 3 ? (
+            <form
+              className="signup-form-screen signup-form-screen--step-two signup-form-screen--payment"
+              onSubmit={handleSubmit}
+            >
+              <div className="signup-step-row" aria-label="Current sign up step">
+                <div className="signup-step-badge">
+                  <div className="signup-step-badge__ring signup-step-badge__ring--step-three">
+                    <span>3</span>
+                  </div>
+                </div>
+                <div className="signup-step-copy">
+                  <span className="signup-step-copy__label">Step 3</span>
+                  <strong>Payment and Billing Details</strong>
+                </div>
+              </div>
+
+              <div className="signup-step-payment">
+                <div className="signup-step-payment__section">
+                  <h3>Payment Method</h3>
+                </div>
+
+                <div className="signup-payment-methods" role="radiogroup" aria-label="Payment Method">
+                  <button
+                    type="button"
+                    className={`signup-payment-card ${values.paymentMethod === 'credit-card' ? 'signup-payment-card--active' : ''}`}
+                    onClick={() => dispatch(setSignupValues({ paymentMethod: 'credit-card' }))}
+                    aria-pressed={values.paymentMethod === 'credit-card'}
+                  >
+                    <span className="signup-payment-card__icon signup-payment-card__icon--credit" aria-hidden="true">
+                      <span className="signup-payment-card__credit-line" />
+                      <span className="signup-payment-card__credit-dot" />
+                    </span>
+                    <span className="signup-payment-card__label">Credit Card</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`signup-payment-card ${values.paymentMethod === 'wallet' ? 'signup-payment-card--active' : ''}`}
+                    onClick={() => dispatch(setSignupValues({ paymentMethod: 'wallet' }))}
+                    aria-pressed={values.paymentMethod === 'wallet'}
+                  >
+                    <span className="signup-payment-card__icon signup-payment-card__icon--wallet" aria-hidden="true">
+                      <span className="signup-payment-card__wallet-body" />
+                      <span className="signup-payment-card__wallet-tab" />
+                    </span>
+                    <span className="signup-payment-card__label">Digital Wallet</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`signup-payment-card ${values.paymentMethod === 'debit' ? 'signup-payment-card--active' : ''}`}
+                    onClick={() => dispatch(setSignupValues({ paymentMethod: 'debit' }))}
+                    aria-pressed={values.paymentMethod === 'debit'}
+                  >
+                    <span className="signup-payment-card__icon signup-payment-card__icon--debit" aria-hidden="true">
+                      <span className="signup-payment-card__debit-card" />
+                      <span className="signup-payment-card__debit-shield" />
+                    </span>
+                    <span className="signup-payment-card__label">Direct Debit</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`signup-payment-card ${values.paymentMethod === 'upi' ? 'signup-payment-card--active signup-payment-card--upi' : 'signup-payment-card--upi'}`}
+                    onClick={() => dispatch(setSignupValues({ paymentMethod: 'upi' }))}
+                    aria-pressed={values.paymentMethod === 'upi'}
+                  >
+                    <span className="signup-payment-card__upi-mark" aria-hidden="true">
+                      <span className="signup-payment-card__upi-logo">UPI</span>
+                      <span className="signup-payment-card__upi-tag">UPI</span>
+                    </span>
+                  </button>
+                </div>
+
+                <FormInput
+                  id="cardholderName"
+                  name="cardholderName"
+                  label="Cardholder Name"
+                  hideLabel
+                  placeholder="Cardholder Name*"
+                  value={values.cardholderName}
+                  onChange={handleFieldChange}
+                  inputClassName="signup-input--payment"
+                />
+
+                <FormInput
+                  id="cardNumber"
+                  name="cardNumber"
+                  label="Card Number"
+                  hideLabel
+                  placeholder="Card Number*"
+                  value={values.cardNumber}
+                  onChange={handleFieldChange}
+                  className="signup-field--payment-brand"
+                  inputClassName="signup-input--payment"
+                  endAdornment={
+                    <span className="signup-card-brand" aria-hidden="true">
+                      <span className="signup-card-brand__circle signup-card-brand__circle--red" />
+                      <span className="signup-card-brand__circle signup-card-brand__circle--yellow" />
+                    </span>
+                  }
+                />
+              </div>
+
+              <div className="signup-step-two__actions">
+                <AppButton
+                  className="signup-panel__button signup-panel__button--secondary"
+                  variant="secondary"
+                  type="button"
+                  onClick={() => dispatch(setCurrentStep(2))}
+                >
+                  Back
+                </AppButton>
+                <AppButton className="signup-panel__button" type="submit">
+                  Next
+                </AppButton>
+              </div>
+            </form>
           ) : (
             <form
               className="signup-form-screen signup-form-screen--step-two signup-form-screen--final"
@@ -492,7 +605,7 @@ export default function SignUp() {
                   className="signup-panel__button signup-panel__button--secondary"
                   variant="secondary"
                   type="button"
-                  onClick={() => dispatch(setCurrentStep(2))}
+                  onClick={() => dispatch(setCurrentStep(3))}
                 >
                   Back
                 </AppButton>
