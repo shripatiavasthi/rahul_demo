@@ -1,14 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import heroImage from '../assets/hero.png'
+import AppButton from '../components/AppButton'
+import AuthHero from '../components/AuthHero'
+import FormInput from '../components/FormInput'
 import { registerUser } from '../lib/api'
 import { storeAuthSession } from '../lib/auth'
 
-const initialSignupValues = {
+const initialValues = {
   firstName: '',
   lastName: '',
   middleName: '',
   firmName: '',
+  addressSearch: '',
   city: '',
   state: '',
   postalCode: '',
@@ -17,26 +20,29 @@ const initialSignupValues = {
   licenseNumber: '',
   jurisdictionType: '',
   accountType: '',
-  paymentMethod: 'credit-card',
+  emailAddress: '',
+  mobileNumber: '',
+  createPassword: '',
+  confirmPassword: '',
   cardholderName: '',
   cardNumber: '',
+  paymentMethod: 'credit-card',
+  authorizationUploaded: false,
   accountId: '',
   userName: '',
   email: '',
   password: '',
-  confirmPassword: '',
-  authorizationUploaded: false,
 }
 
 export default function SignUp() {
   const navigate = useNavigate()
   const viewportRef = useRef(null)
   const [currentStep, setCurrentStep] = useState(1)
-  const [values, setValues] = useState(initialSignupValues)
-  const [submissionStatus, setSubmissionStatus] = useState(null)
-  const [submissionMessage, setSubmissionMessage] = useState('')
+  const [values, setValues] = useState(initialValues)
   const [submitError, setSubmitError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submissionStatus, setSubmissionStatus] = useState(null)
+  const [submissionMessage, setSubmissionMessage] = useState('')
   const [scrollIndicator, setScrollIndicator] = useState({
     height: 20,
     top: 0,
@@ -84,6 +90,15 @@ export default function SignUp() {
   const handleSubmit = (event) => {
     event.preventDefault()
     setSubmitError('')
+
+    if (currentStep === 3) {
+      setValues((currentValues) => ({
+        ...currentValues,
+        email: currentValues.email || currentValues.emailAddress || '',
+        password: currentValues.password || currentValues.createPassword || '',
+      }))
+    }
+
     setCurrentStep((step) => Math.min(step + 1, 4))
   }
 
@@ -100,17 +115,22 @@ export default function SignUp() {
   const handleFinalSubmit = async (event) => {
     event.preventDefault()
 
-    if (
-      !values.accountId.trim() ||
-      !values.userName.trim() ||
-      !values.email.trim() ||
-      !values.password.trim()
-    ) {
-      setSubmitError('Account ID, username, email, and password are required.')
+    const email = (values.email || values.emailAddress || '').trim()
+    const password = values.password || values.createPassword || ''
+    const userName =
+      values.userName.trim() ||
+      email.split('@')[0] ||
+      `${values.firstName || 'user'}${values.lastName || ''}`.toLowerCase()
+    const accountId =
+      values.accountId.trim() ||
+      `ACC-${Date.now().toString().slice(-6)}`
+
+    if (!email || !password) {
+      setSubmitError('Email and password are required before submission.')
       return
     }
 
-    if (values.password !== values.confirmPassword) {
+    if (password !== values.confirmPassword) {
       setSubmitError('Password and confirm password must match.')
       return
     }
@@ -125,10 +145,10 @@ export default function SignUp() {
 
     try {
       const response = await registerUser({
-        accountId: values.accountId.trim(),
-        userName: values.userName.trim(),
-        email: values.email.trim(),
-        password: values.password,
+        accountId,
+        userName,
+        email,
+        password,
         firstName: values.firstName.trim(),
         lastName: values.lastName.trim(),
         middleName: values.middleName.trim(),
@@ -167,32 +187,7 @@ export default function SignUp() {
   return (
     <main className="signup-shell">
       <section className="signup-card" aria-label="Sign up screen">
-        <aside className="signup-hero">
-          <img
-            className="signup-hero__background"
-            src={heroImage}
-            alt=""
-            aria-hidden="true"
-          />
-
-          <div className="signup-hero__content">
-            <div className="signup-hero__brand" aria-label="Logo">
-              <span className="signup-hero__brand-mark" aria-hidden="true">
-                <span className="signup-hero__brand-stroke signup-hero__brand-stroke--left" />
-                <span className="signup-hero__brand-stroke signup-hero__brand-stroke--right" />
-                <span className="signup-hero__brand-stroke signup-hero__brand-stroke--base" />
-              </span>
-              <span className="signup-hero__brand-text">Logo</span>
-            </div>
-
-            <h1>Welcome to Legal Tasks Management and Monitoring Software</h1>
-
-            <p className="signup-hero__copy">
-              Your centralized hub for managing legal tasks, tracking case
-              progress, and optimizing workflows.
-            </p>
-          </div>
-        </aside>
+        <AuthHero />
 
         <section className="signup-panel signup-panel--form">
           <div className="signup-form-header">
@@ -214,74 +209,117 @@ export default function SignUp() {
                 </div>
               </div>
 
-              <div className="signup-form-screen__body">
-                <div className="signup-form-screen__viewport" ref={viewportRef}>
-                  <div className="signup-form-grid signup-form-grid--two">
-                    <label className="signup-field">
-                      <span className="sr-only">First Name</span>
-                      <input name="firstName" type="text" placeholder="First Name*" value={values.firstName} onChange={handleFieldChange} />
-                    </label>
+                <div className="signup-form-screen__body">
+                  <div className="signup-form-screen__viewport" ref={viewportRef}>
+                    <div className="signup-form-grid signup-form-grid--two">
+                      <FormInput
+                        id="firstName"
+                        name="firstName"
+                        label="First Name"
+                        hideLabel
+                        placeholder="First Name*"
+                        value={values.firstName}
+                        onChange={handleFieldChange}
+                      />
 
-                    <label className="signup-field">
-                      <span className="sr-only">Last Name</span>
-                      <input name="lastName" type="text" placeholder="Last Name*" value={values.lastName} onChange={handleFieldChange} />
-                    </label>
-                  </div>
-
-                  <label className="signup-field">
-                    <span className="sr-only">Middle Name</span>
-                    <input name="middleName" type="text" placeholder="Middle Name" value={values.middleName} onChange={handleFieldChange} />
-                  </label>
-
-                  <label className="signup-field">
-                    <span className="sr-only">Firm or Office Name</span>
-                    <input name="firmName" type="text" placeholder="Firm/Office Name*" value={values.firmName} onChange={handleFieldChange} />
-                  </label>
-
-                  <div className="signup-address-block">
-                    <div className="signup-address-block__header">
-                      <span>Address*</span>
-                      <button type="button" className="signup-address-block__action">
-                        + Add Address Manually
-                      </button>
+                      <FormInput
+                        id="lastName"
+                        name="lastName"
+                        label="Last Name"
+                        hideLabel
+                        placeholder="Last Name*"
+                        value={values.lastName}
+                        onChange={handleFieldChange}
+                      />
                     </div>
 
-                    <label className="signup-field">
-                      <span className="sr-only">
-                        Search by postal code or address
-                      </span>
-                      <input
-                        name="postalCodeSearch"
-                        type="text"
+                    <FormInput
+                      id="middleName"
+                      name="middleName"
+                      label="Middle Name"
+                      hideLabel
+                      placeholder="Middle Name"
+                      value={values.middleName}
+                      onChange={handleFieldChange}
+                    />
+
+                    <FormInput
+                      id="firmName"
+                      name="firmName"
+                      label="Firm or Office Name"
+                      hideLabel
+                      placeholder="Firm/Office Name*"
+                      value={values.firmName}
+                      onChange={handleFieldChange}
+                    />
+
+                    <div className="signup-address-block">
+                      <div className="signup-address-block__header">
+                        <span>Address*</span>
+                        <AppButton
+                          type="button"
+                          variant="text"
+                          className="signup-address-block__action"
+                        >
+                          + Add Address Manually
+                        </AppButton>
+                      </div>
+
+                      <FormInput
+                        id="addressSearch"
+                        name="addressSearch"
+                        label="Search by postal code or address"
+                        hideLabel
                         placeholder="Search by Postal Code or address e.g. 17/1"
+                        value={values.addressSearch}
+                        onChange={handleFieldChange}
                       />
-                    </label>
+                    </div>
+
+                    <div className="signup-form-grid signup-form-grid--two signup-form-grid--compact">
+                      <FormInput
+                        id="city"
+                        name="city"
+                        label="City"
+                        hideLabel
+                        placeholder="City*"
+                        value={values.city}
+                        onChange={handleFieldChange}
+                      />
+
+                      <FormInput
+                        id="state"
+                        name="state"
+                        label="State"
+                        hideLabel
+                        placeholder="State*"
+                        value={values.state}
+                        onChange={handleFieldChange}
+                      />
+                    </div>
+
+                    <div className="signup-form-grid signup-form-grid--two signup-form-grid--compact">
+                      <FormInput
+                        id="postalCode"
+                        name="postalCode"
+                        label="Postal Code"
+                        hideLabel
+                        placeholder="Postal Code*"
+                        value={values.postalCode}
+                        onChange={handleFieldChange}
+                      />
+
+                      <FormInput
+                        id="country"
+                        name="country"
+                        label="Country"
+                        hideLabel
+                        placeholder="Country*"
+                        value={values.country}
+                        onChange={handleFieldChange}
+                      />
+                    </div>
                   </div>
-
-                  <div className="signup-form-grid signup-form-grid--two signup-form-grid--compact">
-                    <label className="signup-field">
-                      <span className="sr-only">City</span>
-                      <input name="city" type="text" placeholder="City*" value={values.city} onChange={handleFieldChange} />
-                    </label>
-
-                    <label className="signup-field">
-                      <span className="sr-only">State</span>
-                      <input name="state" type="text" placeholder="State*" value={values.state} onChange={handleFieldChange} />
-                    </label>
-                  </div>
-
-                  <div className="signup-form-grid signup-form-grid--two signup-form-grid--compact">
-                    <label className="signup-field">
-                      <span className="sr-only">Postal Code</span>
-                      <input name="postalCode" type="text" placeholder="Postal Code*" value={values.postalCode} onChange={handleFieldChange} />
-                    </label>
-
-                    <label className="signup-field">
-                      <span className="sr-only">Country</span>
-                      <input name="country" type="text" placeholder="Country*" value={values.country} onChange={handleFieldChange} />
-                    </label>
-                  </div>
-                </div>
 
                 <div className="signup-form-screen__scroll" aria-hidden="true">
                   <span
@@ -294,9 +332,9 @@ export default function SignUp() {
                 </div>
               </div>
 
-              <button className="signup-panel__button" type="submit">
+              <AppButton className="signup-panel__button" type="submit">
                 Next
-              </button>
+              </AppButton>
             </form>
           ) : currentStep === 2 ? (
             <form
@@ -316,56 +354,75 @@ export default function SignUp() {
               </div>
 
               <div className="signup-step-two">
-                <label className="signup-field">
-                  <span className="sr-only">Lawyer Name</span>
-                  <input name="lawyerName" type="text" placeholder="Lawyer Name*" value={values.lawyerName} onChange={handleFieldChange} />
-                </label>
+                <FormInput
+                  id="lawyerName"
+                  name="lawyerName"
+                  label="Lawyer Name"
+                  hideLabel
+                  placeholder="Lawyer Name*"
+                  value={values.lawyerName}
+                  onChange={handleFieldChange}
+                />
 
-                <label className="signup-field">
-                  <span className="sr-only">License number</span>
-                  <input name="licenseNumber" type="text" placeholder="License number*" value={values.licenseNumber} onChange={handleFieldChange} />
-                </label>
+                <FormInput
+                  id="licenseNumber"
+                  name="licenseNumber"
+                  label="License number"
+                  hideLabel
+                  placeholder="License number*"
+                  value={values.licenseNumber}
+                  onChange={handleFieldChange}
+                />
 
-                <label className="signup-field signup-field--select">
-                  <span className="sr-only">Jurisdiction Type</span>
-                  <select name="jurisdictionType" value={values.jurisdictionType} onChange={handleFieldChange}>
-                    <option value="" disabled>
-                      Jurisdiction Type
-                    </option>
-                    <option>State Bar</option>
-                    <option>Supreme Court</option>
-                    <option>High Court</option>
-                  </select>
-                </label>
+                <FormInput
+                  id="jurisdictionType"
+                  name="jurisdictionType"
+                  label="Jurisdiction Type"
+                  hideLabel
+                  select
+                  value={values.jurisdictionType}
+                  onChange={handleFieldChange}
+                  options={[
+                    { value: '', label: 'Jurisdiction Type', disabled: true },
+                    { value: 'State Bar', label: 'State Bar' },
+                    { value: 'Supreme Court', label: 'Supreme Court' },
+                    { value: 'High Court', label: 'High Court' },
+                  ]}
+                />
 
                 <div className="signup-step-two__section">
                   <h3>Account Type</h3>
                 </div>
 
-                <label className="signup-field signup-field--select">
-                  <span className="sr-only">Type of Account</span>
-                  <select name="accountType" value={values.accountType} onChange={handleFieldChange}>
-                    <option value="" disabled>
-                      Type of Account
-                    </option>
-                    <option>Individual Lawyer</option>
-                    <option>Law Firm</option>
-                    <option>Corporate Legal Team</option>
-                  </select>
-                </label>
+                <FormInput
+                  id="accountType"
+                  name="accountType"
+                  label="Type of Account"
+                  hideLabel
+                  select
+                  value={values.accountType}
+                  onChange={handleFieldChange}
+                  options={[
+                    { value: '', label: 'Type of Account', disabled: true },
+                    { value: 'Individual Lawyer', label: 'Individual Lawyer' },
+                    { value: 'Law Firm', label: 'Law Firm' },
+                    { value: 'Corporate Legal Team', label: 'Corporate Legal Team' },
+                  ]}
+                />
               </div>
 
               <div className="signup-step-two__actions">
-                <button
+                <AppButton
                   className="signup-panel__button signup-panel__button--secondary"
+                  variant="secondary"
                   type="button"
                   onClick={() => setCurrentStep(1)}
                 >
                   Back
-                </button>
-                <button className="signup-panel__button" type="submit">
+                </AppButton>
+                <AppButton className="signup-panel__button" type="submit">
                   Next
-                </button>
+                </AppButton>
               </div>
             </form>
           ) : currentStep === 3 ? (
@@ -443,32 +500,48 @@ export default function SignUp() {
                   </button>
                 </div>
 
-                <label className="signup-field signup-field--payment">
-                  <span className="sr-only">Cardholder Name</span>
-                  <input name="cardholderName" type="text" placeholder="Cardholder Name*" value={values.cardholderName} onChange={handleFieldChange} />
-                </label>
+                <FormInput
+                  id="cardholderName"
+                  name="cardholderName"
+                  label="Cardholder Name"
+                  hideLabel
+                  placeholder="Cardholder Name*"
+                  value={values.cardholderName}
+                  onChange={handleFieldChange}
+                  inputClassName="signup-input--payment"
+                />
 
-                <label className="signup-field signup-field--payment signup-field--payment-brand">
-                  <span className="sr-only">Card Number</span>
-                  <input name="cardNumber" type="text" placeholder="Card Number*" value={values.cardNumber} onChange={handleFieldChange} />
-                  <span className="signup-card-brand" aria-hidden="true">
-                    <span className="signup-card-brand__circle signup-card-brand__circle--red" />
-                    <span className="signup-card-brand__circle signup-card-brand__circle--yellow" />
-                  </span>
-                </label>
+                <FormInput
+                  id="cardNumber"
+                  name="cardNumber"
+                  label="Card Number"
+                  hideLabel
+                  placeholder="Card Number*"
+                  value={values.cardNumber}
+                  onChange={handleFieldChange}
+                  className="signup-field--payment-brand"
+                  inputClassName="signup-input--payment"
+                  endAdornment={
+                    <span className="signup-card-brand" aria-hidden="true">
+                      <span className="signup-card-brand__circle signup-card-brand__circle--red" />
+                      <span className="signup-card-brand__circle signup-card-brand__circle--yellow" />
+                    </span>
+                  }
+                />
               </div>
 
               <div className="signup-step-two__actions">
-                <button
+                <AppButton
                   className="signup-panel__button signup-panel__button--secondary"
+                  variant="secondary"
                   type="button"
                   onClick={() => setCurrentStep(2)}
                 >
                   Back
-                </button>
-                <button className="signup-panel__button" type="submit">
+                </AppButton>
+                <AppButton className="signup-panel__button" type="submit">
                   Next
-                </button>
+                </AppButton>
               </div>
             </form>
           ) : (
@@ -520,59 +593,20 @@ export default function SignUp() {
                   </span>
                   <span>{values.authorizationUploaded ? 'Authorization form attached.' : 'Upload or drag and drop your form file here.'}</span>
                 </button>
-                <label className="signup-option signup-option--upload">
-                  <input
-                    name="authorizationUploaded"
-                    type="checkbox"
-                    checked={values.authorizationUploaded}
-                    onChange={handleFieldChange}
-                  />
-                  <span>Mark authorization form as uploaded</span>
-                </label>
-
-                <div className="signup-step-final__section">
-                  <h3>Access Credentials</h3>
-                </div>
-
-                <div className="signup-form-grid signup-form-grid--two signup-form-grid--compact">
-                  <label className="signup-field">
-                    <span className="sr-only">Account ID</span>
-                    <input name="accountId" type="text" placeholder="Account ID*" value={values.accountId} onChange={handleFieldChange} />
-                  </label>
-                  <label className="signup-field">
-                    <span className="sr-only">User Name</span>
-                    <input name="userName" type="text" placeholder="User Name*" value={values.userName} onChange={handleFieldChange} />
-                  </label>
-                </div>
-
-                <label className="signup-field">
-                  <span className="sr-only">Email Address</span>
-                  <input name="email" type="email" placeholder="Email Address*" value={values.email} onChange={handleFieldChange} />
-                </label>
-
-                <div className="signup-form-grid signup-form-grid--two signup-form-grid--compact">
-                  <label className="signup-field">
-                    <span className="sr-only">Password</span>
-                    <input name="password" type="password" placeholder="Password*" value={values.password} onChange={handleFieldChange} />
-                  </label>
-                  <label className="signup-field">
-                    <span className="sr-only">Confirm Password</span>
-                    <input name="confirmPassword" type="password" placeholder="Confirm Password*" value={values.confirmPassword} onChange={handleFieldChange} />
-                  </label>
-                </div>
               </div>
 
               <div className="signup-step-two__actions">
-                <button
+                <AppButton
                   className="signup-panel__button signup-panel__button--secondary"
+                  variant="secondary"
                   type="button"
                   onClick={() => setCurrentStep(3)}
                 >
                   Back
-                </button>
-                <button className="signup-panel__button" type="submit" disabled={isSubmitting}>
+                </AppButton>
+                <AppButton className="signup-panel__button" type="submit" disabled={isSubmitting}>
                   {isSubmitting ? 'Submitting...' : 'Submit'}
-                </button>
+                </AppButton>
               </div>
               {submitError ? <p className="auth-form-feedback auth-form-feedback--error">{submitError}</p> : null}
             </form>

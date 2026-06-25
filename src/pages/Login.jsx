@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import heroImage from '../assets/hero.png'
+import AppButton from '../components/AppButton'
+import AuthHero from '../components/AuthHero'
+import FormInput from '../components/FormInput'
 import { loginUser } from '../lib/api'
 import { storeAuthSession } from '../lib/auth'
 
@@ -94,29 +96,7 @@ export default function Login() {
   return (
     <main className="login-shell">
       <section className="login-card" aria-label="Login screen">
-        <aside className="login-hero">
-          <img
-            className="login-hero__background"
-            src={heroImage}
-            alt=""
-            aria-hidden="true"
-          />
-          <div className="login-hero__content">
-            <div className="login-hero__brand" aria-label="Logo">
-              <span className="login-hero__brand-mark" aria-hidden="true">
-                <span className="login-hero__brand-stroke login-hero__brand-stroke--left" />
-                <span className="login-hero__brand-stroke login-hero__brand-stroke--right" />
-                <span className="login-hero__brand-stroke login-hero__brand-stroke--base" />
-              </span>
-              <span className="login-hero__brand-text">Logo</span>
-            </div>
-            <h1>Welcome to Legal Tasks Management and Monitoring Software</h1>
-            <p className="login-hero__copy">
-              Your centralized hub for managing legal tasks, tracking case
-              progress, and optimizing workflows.
-            </p>
-          </div>
-        </aside>
+        <AuthHero />
 
         <section className="login-form-panel">
           <div className="login-form-panel__header">
@@ -125,82 +105,44 @@ export default function Login() {
           </div>
 
           <form className="login-form" onSubmit={handleSubmit} noValidate>
-            <div className="form-field">
-              <div
-                className={`input-shell ${errors.accountId ? 'input-shell--error' : ''}`}
-              >
-                <input
-                  id="accountId"
-                  name="accountId"
-                  type="text"
-                  placeholder="Account ID"
-                  aria-label="Account ID"
-                  value={values.accountId}
-                  onChange={handleChange}
-                  aria-invalid={Boolean(errors.accountId)}
-                  aria-describedby={errors.accountId ? 'accountId-error' : undefined}
-                />
-              </div>
-              {errors.accountId ? (
-                <p className="form-field__error" id="accountId-error">
-                  {errors.accountId}
-                </p>
-              ) : null}
-            </div>
+            <FormInput
+              id="accountId"
+              name="accountId"
+              label="Account ID"
+              hideLabel
+              placeholder="Account ID"
+              value={values.accountId}
+              onChange={handleChange}
+              error={errors.accountId}
+            />
 
-            <div className="form-field">
-              <div
-                className={`input-shell ${errors.userName ? 'input-shell--error' : ''}`}
-              >
-                <input
-                  id="userName"
-                  name="userName"
-                  type="text"
-                  placeholder="User Name"
-                  aria-label="User Name"
-                  value={values.userName}
-                  onChange={handleChange}
-                  aria-invalid={Boolean(errors.userName)}
-                  aria-describedby={errors.userName ? 'userName-error' : undefined}
-                />
-              </div>
-              {errors.userName ? (
-                <p className="form-field__error" id="userName-error">
-                  {errors.userName}
-                </p>
-              ) : null}
-            </div>
+            <FormInput
+              id="userName"
+              name="userName"
+              label="User Name"
+              hideLabel
+              placeholder="User Name"
+              value={values.userName}
+              onChange={handleChange}
+              error={errors.userName}
+            />
 
-            <div className="form-field">
-              <div
-                className={`input-shell ${errors.password ? 'input-shell--error' : ''}`}
-              >
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Password"
-                  aria-label="Password"
-                  value={values.password}
-                  onChange={handleChange}
-                  aria-invalid={Boolean(errors.password)}
-                  aria-describedby={errors.password ? 'password-error' : undefined}
-                />
-                <button
-                  type="button"
-                  className="input-shell__action"
-                  onClick={() => setShowPassword((currentState) => !currentState)}
-                  aria-label={showPassword ? 'Hide password' : 'View password'}
-                >
-                  {showPassword ? 'Hide' : 'View'}
-                </button>
-              </div>
-              {errors.password ? (
-                <p className="form-field__error" id="password-error">
-                  {errors.password}
-                </p>
-              ) : null}
-            </div>
+            <FormInput
+              id="password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              label="Password"
+              hideLabel
+              placeholder="Password"
+              value={values.password}
+              onChange={handleChange}
+              error={errors.password}
+              action={{
+                label: showPassword ? 'Hide' : 'View',
+                ariaLabel: showPassword ? 'Hide password' : 'View password',
+                onClick: () => setShowPassword((currentState) => !currentState),
+              }}
+            />
 
             <div className="login-form__meta">
               <label className="check-control" htmlFor="rememberMe">
@@ -219,10 +161,15 @@ export default function Login() {
               </a>
             </div>
 
-            <button className="login-form__submit" type="submit">
+            {submitError ? (
+              <p className="app-field__error" role="alert">
+                {submitError}
+              </p>
+            ) : null}
+
+            <AppButton className="login-form__submit" type="submit">
               {isSubmitting ? 'Logging In...' : 'Log In'}
-            </button>
-            {submitError ? <p className="auth-form-feedback auth-form-feedback--error">{submitError}</p> : null}
+            </AppButton>
           </form>
 
           <p className="login-form-panel__footer">
