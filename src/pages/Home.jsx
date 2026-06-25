@@ -1,8 +1,13 @@
-import { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import DashboardOverview from '../components/dashboard/DashboardOverview'
 import DashboardSidebar from '../components/dashboard/DashboardSidebar'
 import DashboardTopbar from '../components/dashboard/DashboardTopbar'
 import OpenFilesWorkspace from '../components/dashboard/OpenFilesWorkspace'
+import {
+  setTheme,
+  setWorkspaceView,
+  toggleSidebar,
+} from '../store/dashboardSlice'
 
 const quickActions = [
   { title: 'Run Conflict', icon: 'cube' },
@@ -67,14 +72,18 @@ const calendarDays = [
 ]
 
 export default function Home() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
-  const [workspaceView, setWorkspaceView] = useState('dashboard')
-  const [theme, setTheme] = useState('light')
+  const dispatch = useDispatch()
+  const { isSidebarOpen, workspaceView, theme } = useSelector(
+    (state) => state.dashboard,
+  )
 
   return (
     <main className={`dashboard-shell dashboard-shell--${theme}`.trim()}>
       <div className="dashboard-frame">
-        <DashboardTopbar theme={theme} onThemeChange={setTheme} />
+        <DashboardTopbar
+          theme={theme}
+          onThemeChange={(nextTheme) => dispatch(setTheme(nextTheme))}
+        />
 
         <div
           className={`dashboard-layout ${isSidebarOpen ? '' : 'dashboard-layout--sidebar-closed'} ${workspaceView === 'open-files' ? 'dashboard-layout--open-files' : ''}`.trim()}
@@ -82,7 +91,7 @@ export default function Home() {
           {workspaceView !== 'open-files' ? (
             <DashboardSidebar
               isSidebarOpen={isSidebarOpen}
-              onToggle={() => setIsSidebarOpen((currentState) => !currentState)}
+              onToggle={() => dispatch(toggleSidebar())}
             />
           ) : null}
 
@@ -94,7 +103,7 @@ export default function Home() {
               closings={closings}
               requisitions={requisitions}
               calendarDays={calendarDays}
-              onOpenFiles={() => setWorkspaceView('open-files')}
+              onOpenFiles={() => dispatch(setWorkspaceView('open-files'))}
             />
           )}
         </div>

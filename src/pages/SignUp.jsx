@@ -1,49 +1,49 @@
 import { useEffect, useRef, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import AccountCreationModal from '../components/AccountCreationModal'
 import AppButton from '../components/AppButton'
 import AuthHero from '../components/AuthHero'
 import FormInput from '../components/FormInput'
 import { registerUser } from '../lib/api'
-import { storeAuthSession } from '../lib/auth'
+import {
+  resetSignup,
+  setCurrentStep,
+  setSignupField,
+  setSignupValues,
+} from '../store/signupSlice'
 
-const initialValues = {
-  firstName: '',
-  lastName: '',
-  middleName: '',
-  firmName: '',
-  addressSearch: '',
-  city: '',
-  state: '',
-  postalCode: '',
-  country: '',
-  lawyerName: '',
-  licenseNumber: '',
-  jurisdictionType: '',
-  accountType: '',
-  emailAddress: '',
-  mobileNumber: '',
-  createPassword: '',
-  confirmPassword: '',
-  cardholderName: '',
-  cardNumber: '',
-  paymentMethod: 'credit-card',
-  authorizationUploaded: false,
-  accountId: '',
-  userName: '',
-  email: '',
-  password: '',
+const AUTHORIZATION_TEMPLATE = [
+  'Authorization Form',
+  '',
+  'I hereby authorize the legal team to process my file and related registration details.',
+  '',
+  'Client Name: _______________________________',
+  'Date: _____________________________________',
+  'Signature: _________________________________',
+].join('\n')
+
+function downloadTextFile(content, fileName) {
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+  const blobUrl = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = blobUrl
+  link.download = fileName
+  link.click()
+  URL.revokeObjectURL(blobUrl)
 }
 
 export default function SignUp() {
+  const dispatch = useDispatch()
   const navigate = useNavigate()
   const viewportRef = useRef(null)
-  const [currentStep, setCurrentStep] = useState(1)
-  const [values, setValues] = useState(initialValues)
+  const { currentStep, values } = useSelector((state) => state.signup)
   const [submitError, setSubmitError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submissionStatus, setSubmissionStatus] = useState(null)
   const [submissionMessage, setSubmissionMessage] = useState('')
+  const [credentialsText, setCredentialsText] = useState('')
+  const [credentialsFileName, setCredentialsFileName] = useState('login-details.txt')
   const [scrollIndicator, setScrollIndicator] = useState({
     height: 20,
     top: 0,
@@ -88,53 +88,32 @@ export default function SignUp() {
     }
   }, [currentStep])
 
+  useEffect(() => {
+    if (currentStep === 3) {
+      dispatch(setCurrentStep(4))
+    }
+  }, [currentStep, dispatch])
+
   const handleSubmit = (event) => {
     event.preventDefault()
     setSubmitError('')
-
-    if (currentStep === 3) {
-      setValues((currentValues) => ({
-        ...currentValues,
-        email: currentValues.email || currentValues.emailAddress || '',
-        password: currentValues.password || currentValues.createPassword || '',
-      }))
-    }
-
-    setCurrentStep((step) => Math.min(step + 1, 4))
+    dispatch(setCurrentStep(currentStep === 2 ? 4 : Math.min(currentStep + 1, 4)))
   }
 
   const handleFieldChange = (event) => {
     const { name, value, type, checked } = event.target
 
-    setValues((currentValues) => ({
-      ...currentValues,
-      [name]: type === 'checkbox' ? checked : value,
-    }))
+    dispatch(
+      setSignupField({
+        name,
+        value: type === 'checkbox' ? checked : value,
+      }),
+    )
     setSubmitError('')
   }
 
   const handleFinalSubmit = async (event) => {
     event.preventDefault()
-
-    const email = (values.email || values.emailAddress || '').trim()
-    const password = values.password || values.createPassword || ''
-    const userName =
-      values.userName.trim() ||
-      email.split('@')[0] ||
-      `${values.firstName || 'user'}${values.lastName || ''}`.toLowerCase()
-    const accountId =
-      values.accountId.trim() ||
-      `ACC-${Date.now().toString().slice(-6)}`
-
-    if (!email || !password) {
-      setSubmitError('Email and password are required before submission.')
-      return
-    }
-
-    if (password !== values.confirmPassword) {
-      setSubmitError('Password and confirm password must match.')
-      return
-    }
 
     if (!values.authorizationUploaded) {
       setSubmitError('Please upload the authorization form before submitting.')
@@ -146,14 +125,11 @@ export default function SignUp() {
 
     try {
       const response = await registerUser({
-        accountId,
-        userName,
-        email,
-        password,
         firstName: values.firstName.trim(),
         lastName: values.lastName.trim(),
         middleName: values.middleName.trim(),
         firmName: values.firmName.trim(),
+        addressSearch: values.addressSearch.trim(),
         city: values.city.trim(),
         state: values.state.trim(),
         postalCode: values.postalCode.trim(),
@@ -162,18 +138,23 @@ export default function SignUp() {
         licenseNumber: values.licenseNumber.trim(),
         jurisdictionType: values.jurisdictionType,
         accountType: values.accountType,
-        paymentMethod: values.paymentMethod,
-        cardholderName: values.cardholderName.trim(),
-        cardNumber: values.cardNumber.trim(),
         authorizationUploaded: values.authorizationUploaded,
       })
 
-      storeAuthSession({
-        token: response.token,
-        user: response.user,
-        rememberMe: true,
-      })
-      setSubmissionMessage('Your account has been created successfully. Click Okay to continue to your dashboard.')
+      const nextCredentialsText = response.credentialsText || ''
+      const nextCredentialsFileName =
+        response.credentialsFileName || 'login-details.txt'
+
+      setCredentialsText(nextCredentialsText)
+      setCredentialsFileName(nextCredentialsFileName)
+
+      if (nextCredentialsText) {
+        downloadTextFile(nextCredentialsText, nextCredentialsFileName)
+      }
+
+      setSubmissionMessage(
+        'Your account has been created successfully. Your login details text file has been downloaded.',
+      )
       setSubmissionStatus('success')
     } catch (error) {
       setSubmissionMessage(
@@ -190,7 +171,8 @@ export default function SignUp() {
     setSubmissionStatus(null)
 
     if (wasSuccessful) {
-      navigate('/home')
+      dispatch(resetSignup())
+      navigate('/login')
     }
   }
 
@@ -426,126 +408,7 @@ export default function SignUp() {
                   className="signup-panel__button signup-panel__button--secondary"
                   variant="secondary"
                   type="button"
-                  onClick={() => setCurrentStep(1)}
-                >
-                  Back
-                </AppButton>
-                <AppButton className="signup-panel__button" type="submit">
-                  Next
-                </AppButton>
-              </div>
-            </form>
-          ) : currentStep === 3 ? (
-            <form
-              className="signup-form-screen signup-form-screen--step-two signup-form-screen--payment"
-              onSubmit={handleSubmit}
-            >
-              <div className="signup-step-row" aria-label="Current sign up step">
-                <div className="signup-step-badge">
-                  <div className="signup-step-badge__ring signup-step-badge__ring--step-three">
-                    <span>3</span>
-                  </div>
-                </div>
-                <div className="signup-step-copy">
-                  <span className="signup-step-copy__label">Step 3</span>
-                  <strong>Payment and Billing Details</strong>
-                </div>
-              </div>
-
-              <div className="signup-step-payment">
-                <div className="signup-step-payment__section">
-                  <h3>Payment Method</h3>
-                </div>
-
-                <div className="signup-payment-methods" role="radiogroup" aria-label="Payment Method">
-                  <button
-                    type="button"
-                    className={`signup-payment-card ${values.paymentMethod === 'credit-card' ? 'signup-payment-card--active' : ''}`}
-                    onClick={() => setValues((currentValues) => ({ ...currentValues, paymentMethod: 'credit-card' }))}
-                    aria-pressed={values.paymentMethod === 'credit-card'}
-                  >
-                    <span className="signup-payment-card__icon signup-payment-card__icon--credit" aria-hidden="true">
-                      <span className="signup-payment-card__credit-line" />
-                      <span className="signup-payment-card__credit-dot" />
-                    </span>
-                    <span className="signup-payment-card__label">Credit Card</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className={`signup-payment-card ${values.paymentMethod === 'wallet' ? 'signup-payment-card--active' : ''}`}
-                    onClick={() => setValues((currentValues) => ({ ...currentValues, paymentMethod: 'wallet' }))}
-                    aria-pressed={values.paymentMethod === 'wallet'}
-                  >
-                    <span className="signup-payment-card__icon signup-payment-card__icon--wallet" aria-hidden="true">
-                      <span className="signup-payment-card__wallet-body" />
-                      <span className="signup-payment-card__wallet-tab" />
-                    </span>
-                    <span className="signup-payment-card__label">Digital Wallet</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className={`signup-payment-card ${values.paymentMethod === 'debit' ? 'signup-payment-card--active' : ''}`}
-                    onClick={() => setValues((currentValues) => ({ ...currentValues, paymentMethod: 'debit' }))}
-                    aria-pressed={values.paymentMethod === 'debit'}
-                  >
-                    <span className="signup-payment-card__icon signup-payment-card__icon--debit" aria-hidden="true">
-                      <span className="signup-payment-card__debit-card" />
-                      <span className="signup-payment-card__debit-shield" />
-                    </span>
-                    <span className="signup-payment-card__label">Direct Debit</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className={`signup-payment-card ${values.paymentMethod === 'upi' ? 'signup-payment-card--active signup-payment-card--upi' : 'signup-payment-card--upi'}`}
-                    onClick={() => setValues((currentValues) => ({ ...currentValues, paymentMethod: 'upi' }))}
-                    aria-pressed={values.paymentMethod === 'upi'}
-                  >
-                    <span className="signup-payment-card__upi-mark" aria-hidden="true">
-                      <span className="signup-payment-card__upi-logo">UPI</span>
-                      <span className="signup-payment-card__upi-tag">UPI</span>
-                    </span>
-                  </button>
-                </div>
-
-                <FormInput
-                  id="cardholderName"
-                  name="cardholderName"
-                  label="Cardholder Name"
-                  hideLabel
-                  placeholder="Cardholder Name*"
-                  value={values.cardholderName}
-                  onChange={handleFieldChange}
-                  inputClassName="signup-input--payment"
-                />
-
-                <FormInput
-                  id="cardNumber"
-                  name="cardNumber"
-                  label="Card Number"
-                  hideLabel
-                  placeholder="Card Number*"
-                  value={values.cardNumber}
-                  onChange={handleFieldChange}
-                  className="signup-field--payment-brand"
-                  inputClassName="signup-input--payment"
-                  endAdornment={
-                    <span className="signup-card-brand" aria-hidden="true">
-                      <span className="signup-card-brand__circle signup-card-brand__circle--red" />
-                      <span className="signup-card-brand__circle signup-card-brand__circle--yellow" />
-                    </span>
-                  }
-                />
-              </div>
-
-              <div className="signup-step-two__actions">
-                <AppButton
-                  className="signup-panel__button signup-panel__button--secondary"
-                  variant="secondary"
-                  type="button"
-                  onClick={() => setCurrentStep(2)}
+                  onClick={() => dispatch(setCurrentStep(1))}
                 >
                   Back
                 </AppButton>
@@ -572,7 +435,16 @@ export default function SignUp() {
               </div>
 
               <div className="signup-step-final">
-                <button type="button" className="signup-download-card">
+                <button
+                  type="button"
+                  className="signup-download-card"
+                  onClick={() =>
+                    downloadTextFile(
+                      AUTHORIZATION_TEMPLATE,
+                      'authorization-form-template.txt',
+                    )
+                  }
+                >
                   <span className="signup-download-card__icon" aria-hidden="true">
                     <span className="signup-download-card__sheet" />
                     <span className="signup-download-card__line signup-download-card__line--top" />
@@ -588,12 +460,7 @@ export default function SignUp() {
                 <button
                   type="button"
                   className="signup-upload-card"
-                  onClick={() =>
-                    setValues((currentValues) => ({
-                      ...currentValues,
-                      authorizationUploaded: true,
-                    }))
-                  }
+                  onClick={() => dispatch(setSignupValues({ authorizationUploaded: true }))}
                 >
                   <span className="signup-upload-card__icon" aria-hidden="true">
                     <span className="signup-upload-card__file" />
@@ -603,6 +470,21 @@ export default function SignUp() {
                   </span>
                   <span>{values.authorizationUploaded ? 'Authorization form attached.' : 'Upload or drag and drop your form file here.'}</span>
                 </button>
+
+                {credentialsText ? (
+                  <button
+                    type="button"
+                    className="signup-download-card signup-download-card--secondary"
+                    onClick={() => downloadTextFile(credentialsText, credentialsFileName)}
+                  >
+                    <span className="signup-download-card__icon" aria-hidden="true">
+                      <span className="signup-download-card__sheet" />
+                      <span className="signup-download-card__line signup-download-card__line--top" />
+                      <span className="signup-download-card__line signup-download-card__line--bottom" />
+                    </span>
+                    <span>Download Login Details (.txt)</span>
+                  </button>
+                ) : null}
               </div>
 
               <div className="signup-step-two__actions">
@@ -610,7 +492,7 @@ export default function SignUp() {
                   className="signup-panel__button signup-panel__button--secondary"
                   variant="secondary"
                   type="button"
-                  onClick={() => setCurrentStep(3)}
+                  onClick={() => dispatch(setCurrentStep(2))}
                 >
                   Back
                 </AppButton>

@@ -1,8 +1,8 @@
 import { Navigate } from 'react-router-dom'
-import { readStoredToken } from '../lib/auth'
+import { useSelector } from 'react-redux'
 
 export default function ProtectedRoute({ children }) {
-  const token = readStoredToken()
+  const token = useSelector((state) => state.auth.token)
 
   if (!token) {
     return <Navigate to="/login" replace />

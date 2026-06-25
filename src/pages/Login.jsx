@@ -1,10 +1,11 @@
 import { useState } from 'react'
+import { useDispatch } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import AppButton from '../components/AppButton'
 import AuthHero from '../components/AuthHero'
 import FormInput from '../components/FormInput'
 import { loginUser } from '../lib/api'
-import { storeAuthSession } from '../lib/auth'
+import { setCredentials } from '../store/authSlice'
 
 const initialValues = {
   accountId: '',
@@ -32,6 +33,7 @@ function validate(values) {
 }
 
 export default function Login() {
+  const dispatch = useDispatch()
   const navigate = useNavigate()
   const [values, setValues] = useState(initialValues)
   const [errors, setErrors] = useState({})
@@ -79,11 +81,11 @@ export default function Login() {
         password: values.password,
       })
 
-      storeAuthSession({
+      dispatch(setCredentials({
         token: response.token,
         user: response.user,
         rememberMe: values.rememberMe,
-      })
+      }))
 
       navigate('/home')
     } catch (error) {
