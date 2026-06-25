@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import AccountCreationModal from '../components/AccountCreationModal'
 import AppButton from '../components/AppButton'
 import AuthHero from '../components/AuthHero'
 import FormInput from '../components/FormInput'
@@ -181,6 +182,15 @@ export default function SignUp() {
       setSubmissionStatus('failed')
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const handleModalClose = () => {
+    const wasSuccessful = submissionStatus === 'success'
+    setSubmissionStatus(null)
+
+    if (wasSuccessful) {
+      navigate('/home')
     }
   }
 
@@ -618,60 +628,11 @@ export default function SignUp() {
         </section>
       </section>
 
-      {submissionStatus ? (
-        <div className="signup-modal-backdrop" role="presentation">
-          <section
-            className={`signup-modal signup-modal--${submissionStatus}`}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="signup-modal-title"
-          >
-            <p className="signup-modal__eyebrow">Account Creation confirmation</p>
-
-            <div className="signup-modal__card">
-              <div className="signup-modal__hero" aria-hidden="true">
-                <span className="signup-modal__dot signup-modal__dot--one" />
-                <span className="signup-modal__dot signup-modal__dot--two" />
-                <span className="signup-modal__dot signup-modal__dot--three" />
-                <span className="signup-modal__dot signup-modal__dot--four" />
-
-                <div className="signup-modal__status-icon">
-                  <span className="signup-modal__status-ring" />
-                  {submissionStatus === 'success' ? (
-                    <span className="signup-modal__status-mark signup-modal__status-mark--success" />
-                  ) : (
-                    <span className="signup-modal__status-mark signup-modal__status-mark--failed" />
-                  )}
-                </div>
-              </div>
-
-              <div className="signup-modal__body">
-                <h3 id="signup-modal-title">
-                  {submissionStatus === 'success'
-                    ? 'Account created successfully'
-                    : 'Sorry!'}
-                </h3>
-                <p>
-                  {submissionMessage}
-                </p>
-                <button
-                  type="button"
-                  className="signup-modal__button"
-                  onClick={() => {
-                    const wasSuccessful = submissionStatus === 'success'
-                    setSubmissionStatus(null)
-                    if (wasSuccessful) {
-                      navigate('/home')
-                    }
-                  }}
-                >
-                  Okay
-                </button>
-              </div>
-            </div>
-          </section>
-        </div>
-      ) : null}
+      <AccountCreationModal
+        status={submissionStatus}
+        message={submissionMessage}
+        onClose={handleModalClose}
+      />
     </main>
   )
 }
