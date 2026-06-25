@@ -1,13 +1,42 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import heroImage from '../assets/hero.png'
+import { registerUser } from '../lib/api'
+import { storeAuthSession } from '../lib/auth'
+
+const initialSignupValues = {
+  firstName: '',
+  lastName: '',
+  middleName: '',
+  firmName: '',
+  city: '',
+  state: '',
+  postalCode: '',
+  country: '',
+  lawyerName: '',
+  licenseNumber: '',
+  jurisdictionType: '',
+  accountType: '',
+  paymentMethod: 'credit-card',
+  cardholderName: '',
+  cardNumber: '',
+  accountId: '',
+  userName: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  authorizationUploaded: false,
+}
 
 export default function SignUp() {
+  const navigate = useNavigate()
   const viewportRef = useRef(null)
   const [currentStep, setCurrentStep] = useState(1)
-  const [paymentMethod, setPaymentMethod] = useState('credit-card')
+  const [values, setValues] = useState(initialSignupValues)
   const [submissionStatus, setSubmissionStatus] = useState(null)
-  const [submissionAttempt, setSubmissionAttempt] = useState(0)
+  const [submissionMessage, setSubmissionMessage] = useState('')
+  const [submitError, setSubmitError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [scrollIndicator, setScrollIndicator] = useState({
     height: 20,
     top: 0,
@@ -54,15 +83,85 @@ export default function SignUp() {
 
   const handleSubmit = (event) => {
     event.preventDefault()
+    setSubmitError('')
     setCurrentStep((step) => Math.min(step + 1, 4))
   }
 
-  const handleFinalSubmit = (event) => {
+  const handleFieldChange = (event) => {
+    const { name, value, type, checked } = event.target
+
+    setValues((currentValues) => ({
+      ...currentValues,
+      [name]: type === 'checkbox' ? checked : value,
+    }))
+    setSubmitError('')
+  }
+
+  const handleFinalSubmit = async (event) => {
     event.preventDefault()
 
-    const nextAttempt = submissionAttempt + 1
-    setSubmissionAttempt(nextAttempt)
-    setSubmissionStatus(nextAttempt % 2 === 1 ? 'success' : 'failed')
+    if (
+      !values.accountId.trim() ||
+      !values.userName.trim() ||
+      !values.email.trim() ||
+      !values.password.trim()
+    ) {
+      setSubmitError('Account ID, username, email, and password are required.')
+      return
+    }
+
+    if (values.password !== values.confirmPassword) {
+      setSubmitError('Password and confirm password must match.')
+      return
+    }
+
+    if (!values.authorizationUploaded) {
+      setSubmitError('Please upload the authorization form before submitting.')
+      return
+    }
+
+    setIsSubmitting(true)
+    setSubmitError('')
+
+    try {
+      const response = await registerUser({
+        accountId: values.accountId.trim(),
+        userName: values.userName.trim(),
+        email: values.email.trim(),
+        password: values.password,
+        firstName: values.firstName.trim(),
+        lastName: values.lastName.trim(),
+        middleName: values.middleName.trim(),
+        firmName: values.firmName.trim(),
+        city: values.city.trim(),
+        state: values.state.trim(),
+        postalCode: values.postalCode.trim(),
+        country: values.country.trim(),
+        lawyerName: values.lawyerName.trim(),
+        licenseNumber: values.licenseNumber.trim(),
+        jurisdictionType: values.jurisdictionType,
+        accountType: values.accountType,
+        paymentMethod: values.paymentMethod,
+        cardholderName: values.cardholderName.trim(),
+        cardNumber: values.cardNumber.trim(),
+        authorizationUploaded: values.authorizationUploaded,
+      })
+
+      storeAuthSession({
+        token: response.token,
+        user: response.user,
+        rememberMe: true,
+      })
+      setSubmissionMessage('Your account has been created successfully. Click Okay to continue to your dashboard.')
+      setSubmissionStatus('success')
+    } catch (error) {
+      setSubmissionMessage(
+        error.message || 'Your account creation has failed. Please go back and try again.',
+      )
+      setSubmissionStatus('failed')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -120,23 +219,23 @@ export default function SignUp() {
                   <div className="signup-form-grid signup-form-grid--two">
                     <label className="signup-field">
                       <span className="sr-only">First Name</span>
-                      <input type="text" placeholder="First Name*" />
+                      <input name="firstName" type="text" placeholder="First Name*" value={values.firstName} onChange={handleFieldChange} />
                     </label>
 
                     <label className="signup-field">
                       <span className="sr-only">Last Name</span>
-                      <input type="text" placeholder="Last Name*" />
+                      <input name="lastName" type="text" placeholder="Last Name*" value={values.lastName} onChange={handleFieldChange} />
                     </label>
                   </div>
 
                   <label className="signup-field">
                     <span className="sr-only">Middle Name</span>
-                    <input type="text" placeholder="Middle Name" />
+                    <input name="middleName" type="text" placeholder="Middle Name" value={values.middleName} onChange={handleFieldChange} />
                   </label>
 
                   <label className="signup-field">
                     <span className="sr-only">Firm or Office Name</span>
-                    <input type="text" placeholder="Firm/Office Name*" />
+                    <input name="firmName" type="text" placeholder="Firm/Office Name*" value={values.firmName} onChange={handleFieldChange} />
                   </label>
 
                   <div className="signup-address-block">
@@ -152,6 +251,7 @@ export default function SignUp() {
                         Search by postal code or address
                       </span>
                       <input
+                        name="postalCodeSearch"
                         type="text"
                         placeholder="Search by Postal Code or address e.g. 17/1"
                       />
@@ -161,24 +261,24 @@ export default function SignUp() {
                   <div className="signup-form-grid signup-form-grid--two signup-form-grid--compact">
                     <label className="signup-field">
                       <span className="sr-only">City</span>
-                      <input type="text" placeholder="City*" />
+                      <input name="city" type="text" placeholder="City*" value={values.city} onChange={handleFieldChange} />
                     </label>
 
                     <label className="signup-field">
                       <span className="sr-only">State</span>
-                      <input type="text" placeholder="State*" />
+                      <input name="state" type="text" placeholder="State*" value={values.state} onChange={handleFieldChange} />
                     </label>
                   </div>
 
                   <div className="signup-form-grid signup-form-grid--two signup-form-grid--compact">
                     <label className="signup-field">
                       <span className="sr-only">Postal Code</span>
-                      <input type="text" placeholder="Postal Code*" />
+                      <input name="postalCode" type="text" placeholder="Postal Code*" value={values.postalCode} onChange={handleFieldChange} />
                     </label>
 
                     <label className="signup-field">
                       <span className="sr-only">Country</span>
-                      <input type="text" placeholder="Country*" />
+                      <input name="country" type="text" placeholder="Country*" value={values.country} onChange={handleFieldChange} />
                     </label>
                   </div>
                 </div>
@@ -218,17 +318,17 @@ export default function SignUp() {
               <div className="signup-step-two">
                 <label className="signup-field">
                   <span className="sr-only">Lawyer Name</span>
-                  <input type="text" placeholder="Lawyer Name*" />
+                  <input name="lawyerName" type="text" placeholder="Lawyer Name*" value={values.lawyerName} onChange={handleFieldChange} />
                 </label>
 
                 <label className="signup-field">
                   <span className="sr-only">License number</span>
-                  <input type="text" placeholder="License number*" />
+                  <input name="licenseNumber" type="text" placeholder="License number*" value={values.licenseNumber} onChange={handleFieldChange} />
                 </label>
 
                 <label className="signup-field signup-field--select">
                   <span className="sr-only">Jurisdiction Type</span>
-                  <select defaultValue="">
+                  <select name="jurisdictionType" value={values.jurisdictionType} onChange={handleFieldChange}>
                     <option value="" disabled>
                       Jurisdiction Type
                     </option>
@@ -244,7 +344,7 @@ export default function SignUp() {
 
                 <label className="signup-field signup-field--select">
                   <span className="sr-only">Type of Account</span>
-                  <select defaultValue="">
+                  <select name="accountType" value={values.accountType} onChange={handleFieldChange}>
                     <option value="" disabled>
                       Type of Account
                     </option>
@@ -293,9 +393,9 @@ export default function SignUp() {
                 <div className="signup-payment-methods" role="radiogroup" aria-label="Payment Method">
                   <button
                     type="button"
-                    className={`signup-payment-card ${paymentMethod === 'credit-card' ? 'signup-payment-card--active' : ''}`}
-                    onClick={() => setPaymentMethod('credit-card')}
-                    aria-pressed={paymentMethod === 'credit-card'}
+                    className={`signup-payment-card ${values.paymentMethod === 'credit-card' ? 'signup-payment-card--active' : ''}`}
+                    onClick={() => setValues((currentValues) => ({ ...currentValues, paymentMethod: 'credit-card' }))}
+                    aria-pressed={values.paymentMethod === 'credit-card'}
                   >
                     <span className="signup-payment-card__icon signup-payment-card__icon--credit" aria-hidden="true">
                       <span className="signup-payment-card__credit-line" />
@@ -306,9 +406,9 @@ export default function SignUp() {
 
                   <button
                     type="button"
-                    className={`signup-payment-card ${paymentMethod === 'wallet' ? 'signup-payment-card--active' : ''}`}
-                    onClick={() => setPaymentMethod('wallet')}
-                    aria-pressed={paymentMethod === 'wallet'}
+                    className={`signup-payment-card ${values.paymentMethod === 'wallet' ? 'signup-payment-card--active' : ''}`}
+                    onClick={() => setValues((currentValues) => ({ ...currentValues, paymentMethod: 'wallet' }))}
+                    aria-pressed={values.paymentMethod === 'wallet'}
                   >
                     <span className="signup-payment-card__icon signup-payment-card__icon--wallet" aria-hidden="true">
                       <span className="signup-payment-card__wallet-body" />
@@ -319,9 +419,9 @@ export default function SignUp() {
 
                   <button
                     type="button"
-                    className={`signup-payment-card ${paymentMethod === 'debit' ? 'signup-payment-card--active' : ''}`}
-                    onClick={() => setPaymentMethod('debit')}
-                    aria-pressed={paymentMethod === 'debit'}
+                    className={`signup-payment-card ${values.paymentMethod === 'debit' ? 'signup-payment-card--active' : ''}`}
+                    onClick={() => setValues((currentValues) => ({ ...currentValues, paymentMethod: 'debit' }))}
+                    aria-pressed={values.paymentMethod === 'debit'}
                   >
                     <span className="signup-payment-card__icon signup-payment-card__icon--debit" aria-hidden="true">
                       <span className="signup-payment-card__debit-card" />
@@ -332,9 +432,9 @@ export default function SignUp() {
 
                   <button
                     type="button"
-                    className={`signup-payment-card ${paymentMethod === 'upi' ? 'signup-payment-card--active signup-payment-card--upi' : 'signup-payment-card--upi'}`}
-                    onClick={() => setPaymentMethod('upi')}
-                    aria-pressed={paymentMethod === 'upi'}
+                    className={`signup-payment-card ${values.paymentMethod === 'upi' ? 'signup-payment-card--active signup-payment-card--upi' : 'signup-payment-card--upi'}`}
+                    onClick={() => setValues((currentValues) => ({ ...currentValues, paymentMethod: 'upi' }))}
+                    aria-pressed={values.paymentMethod === 'upi'}
                   >
                     <span className="signup-payment-card__upi-mark" aria-hidden="true">
                       <span className="signup-payment-card__upi-logo">UPI</span>
@@ -345,12 +445,12 @@ export default function SignUp() {
 
                 <label className="signup-field signup-field--payment">
                   <span className="sr-only">Cardholder Name</span>
-                  <input type="text" placeholder="Cardholder Name*" />
+                  <input name="cardholderName" type="text" placeholder="Cardholder Name*" value={values.cardholderName} onChange={handleFieldChange} />
                 </label>
 
                 <label className="signup-field signup-field--payment signup-field--payment-brand">
                   <span className="sr-only">Card Number</span>
-                  <input type="text" placeholder="Card Number*" />
+                  <input name="cardNumber" type="text" placeholder="Card Number*" value={values.cardNumber} onChange={handleFieldChange} />
                   <span className="signup-card-brand" aria-hidden="true">
                     <span className="signup-card-brand__circle signup-card-brand__circle--red" />
                     <span className="signup-card-brand__circle signup-card-brand__circle--yellow" />
@@ -402,15 +502,64 @@ export default function SignUp() {
                   <h3>Authorization Form</h3>
                 </div>
 
-                <button type="button" className="signup-upload-card">
+                <button
+                  type="button"
+                  className="signup-upload-card"
+                  onClick={() =>
+                    setValues((currentValues) => ({
+                      ...currentValues,
+                      authorizationUploaded: true,
+                    }))
+                  }
+                >
                   <span className="signup-upload-card__icon" aria-hidden="true">
                     <span className="signup-upload-card__file" />
                     <span className="signup-upload-card__file-fold" />
                     <span className="signup-upload-card__upload-ring" />
                     <span className="signup-upload-card__upload-arrow" />
                   </span>
-                  <span>Upload or drag and drop your form file here.</span>
+                  <span>{values.authorizationUploaded ? 'Authorization form attached.' : 'Upload or drag and drop your form file here.'}</span>
                 </button>
+                <label className="signup-option signup-option--upload">
+                  <input
+                    name="authorizationUploaded"
+                    type="checkbox"
+                    checked={values.authorizationUploaded}
+                    onChange={handleFieldChange}
+                  />
+                  <span>Mark authorization form as uploaded</span>
+                </label>
+
+                <div className="signup-step-final__section">
+                  <h3>Access Credentials</h3>
+                </div>
+
+                <div className="signup-form-grid signup-form-grid--two signup-form-grid--compact">
+                  <label className="signup-field">
+                    <span className="sr-only">Account ID</span>
+                    <input name="accountId" type="text" placeholder="Account ID*" value={values.accountId} onChange={handleFieldChange} />
+                  </label>
+                  <label className="signup-field">
+                    <span className="sr-only">User Name</span>
+                    <input name="userName" type="text" placeholder="User Name*" value={values.userName} onChange={handleFieldChange} />
+                  </label>
+                </div>
+
+                <label className="signup-field">
+                  <span className="sr-only">Email Address</span>
+                  <input name="email" type="email" placeholder="Email Address*" value={values.email} onChange={handleFieldChange} />
+                </label>
+
+                <div className="signup-form-grid signup-form-grid--two signup-form-grid--compact">
+                  <label className="signup-field">
+                    <span className="sr-only">Password</span>
+                    <input name="password" type="password" placeholder="Password*" value={values.password} onChange={handleFieldChange} />
+                  </label>
+                  <label className="signup-field">
+                    <span className="sr-only">Confirm Password</span>
+                    <input name="confirmPassword" type="password" placeholder="Confirm Password*" value={values.confirmPassword} onChange={handleFieldChange} />
+                  </label>
+                </div>
               </div>
 
               <div className="signup-step-two__actions">
@@ -421,10 +570,11 @@ export default function SignUp() {
                 >
                   Back
                 </button>
-                <button className="signup-panel__button" type="submit">
-                  Submit
+                <button className="signup-panel__button" type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? 'Submitting...' : 'Submit'}
                 </button>
               </div>
+              {submitError ? <p className="auth-form-feedback auth-form-feedback--error">{submitError}</p> : null}
             </form>
           )}
 
@@ -468,14 +618,18 @@ export default function SignUp() {
                     : 'Sorry!'}
                 </h3>
                 <p>
-                  {submissionStatus === 'success'
-                    ? 'Your account has been created successfully. Please check your email for the login credentials we just sent you.'
-                    : 'Your account creation has been failed. Please go back and try again'}
+                  {submissionMessage}
                 </p>
                 <button
                   type="button"
                   className="signup-modal__button"
-                  onClick={() => setSubmissionStatus(null)}
+                  onClick={() => {
+                    const wasSuccessful = submissionStatus === 'success'
+                    setSubmissionStatus(null)
+                    if (wasSuccessful) {
+                      navigate('/home')
+                    }
+                  }}
                 >
                   Okay
                 </button>

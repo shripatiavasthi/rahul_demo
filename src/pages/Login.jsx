@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import heroImage from '../assets/hero.png'
+import { loginUser } from '../lib/api'
+import { storeAuthSession } from '../lib/auth'
 
 const initialValues = {
   accountId: '',
@@ -32,6 +34,8 @@ export default function Login() {
   const [values, setValues] = useState(initialValues)
   const [errors, setErrors] = useState({})
   const [showPassword, setShowPassword] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target
@@ -40,6 +44,7 @@ export default function Login() {
       ...currentValues,
       [name]: type === 'checkbox' ? checked : value,
     }))
+    setSubmitError('')
 
     setErrors((currentErrors) => {
       if (!currentErrors[name]) {
@@ -52,14 +57,37 @@ export default function Login() {
     })
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
     const nextErrors = validate(values)
 
     setErrors(nextErrors)
 
-    if (Object.keys(nextErrors).length === 0) {
+    if (Object.keys(nextErrors).length !== 0) {
+      return
+    }
+
+    setIsSubmitting(true)
+    setSubmitError('')
+
+    try {
+      const response = await loginUser({
+        accountId: values.accountId.trim(),
+        userName: values.userName.trim(),
+        password: values.password,
+      })
+
+      storeAuthSession({
+        token: response.token,
+        user: response.user,
+        rememberMe: values.rememberMe,
+      })
+
       navigate('/home')
+    } catch (error) {
+      setSubmitError(error.message)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -192,8 +220,9 @@ export default function Login() {
             </div>
 
             <button className="login-form__submit" type="submit">
-              Log In
+              {isSubmitting ? 'Logging In...' : 'Log In'}
             </button>
+            {submitError ? <p className="auth-form-feedback auth-form-feedback--error">{submitError}</p> : null}
           </form>
 
           <p className="login-form-panel__footer">
