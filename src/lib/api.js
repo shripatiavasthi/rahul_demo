@@ -1,5 +1,12 @@
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api'
+const DEFAULT_LOCAL_API_BASE_URL = 'http://localhost:4000/api'
+const DEFAULT_DEPLOYED_API_BASE_URL = 'https://rahul-demo-backend.vercel.app/api'
+
+const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
+
+const API_BASE_URL = (
+  configuredApiBaseUrl ||
+  (import.meta.env.DEV ? DEFAULT_LOCAL_API_BASE_URL : DEFAULT_DEPLOYED_API_BASE_URL)
+).replace(/\/$/, '')
 
 async function request(path, options = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
