@@ -1,3 +1,4 @@
+import settingIcon from '../../assets/Setting.png'
 import DashboardIcon from './DashboardIcon'
 
 export default function DashboardSidebar({ isSidebarOpen, onToggle }) {
@@ -14,7 +15,7 @@ export default function DashboardSidebar({ isSidebarOpen, onToggle }) {
           <DashboardIcon name="users" />
         </button>
         <button type="button" className="dashboard-sidebar__avatar dashboard-sidebar__avatar--settings" aria-label="Settings">
-          <DashboardIcon name="settings" />
+          <img className="dashboard-sidebar__avatar-img" src={settingIcon} alt="" aria-hidden="true" />
         </button>
       </div>
 

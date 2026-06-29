@@ -33,7 +33,7 @@ export default function DashboardTableCard({ title, count, rows }) {
         </div>
 
         <div className="dashboard-table__body" role="rowgroup">
-          {rows.map((row, index) => (
+          {rows.slice(0, 3).map((row, index) => (
             <div className="dashboard-table__row" role="row" key={`${row.fileName}-${index}`}>
               <div className="dashboard-table__file" role="cell">
                 <span className="dashboard-table__file-icon">

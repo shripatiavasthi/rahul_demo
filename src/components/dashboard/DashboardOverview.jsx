@@ -1,6 +1,20 @@
-import heroImage from '../../assets/hero.png'
+import needHelpImage from '../../assets/needhelp.png'
+import supportIcon from '../../assets/streamline_customer-support-1.png'
+import runConflictIcon from '../../assets/Group 26.png'
+import folderIcon from '../../assets/Folder.png'
+import workstationIcon from '../../assets/Work.png'
+import searchIcon from '../../assets/Search.png'
+import advanceSearchIcon from '../../assets/Frame 17.png'
 import DashboardIcon from './DashboardIcon'
 import DashboardTableCard from './DashboardTableCard'
+
+const actionIcons = {
+  cube: runConflictIcon,
+  folder: folderIcon,
+  briefcase: workstationIcon,
+  search: searchIcon,
+  filter: advanceSearchIcon,
+}
 
 export default function DashboardOverview({
   quickActions,
@@ -26,7 +40,7 @@ export default function DashboardOverview({
             >
               <span className="dashboard-action-card__accent" aria-hidden="true" />
               <span className="dashboard-action-card__icon">
-                <DashboardIcon name={action.icon} />
+                <img src={actionIcons[action.icon]} alt="" aria-hidden="true" />
               </span>
               <span className="dashboard-action-card__label">{action.title}</span>
               <span className="dashboard-action-card__arrow">
@@ -94,11 +108,11 @@ export default function DashboardOverview({
         </section>
 
         <section className="dashboard-help">
-          <img className="dashboard-help__background" src={heroImage} alt="" aria-hidden="true" />
+          <img className="dashboard-help__background" src={needHelpImage} alt="" aria-hidden="true" />
           <div className="dashboard-help__overlay" />
           <div className="dashboard-help__content">
             <span className="dashboard-help__icon">
-              <DashboardIcon name="headset" />
+              <img src={supportIcon} alt="" aria-hidden="true" />
             </span>
             <h2>Need Help?</h2>
             <p>We are always here for your support.</p>

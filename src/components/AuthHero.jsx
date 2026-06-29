@@ -1,4 +1,5 @@
-import heroImage from "../assets/hero.png";
+import heroImage from "../assets/image 10.png";
+import logoImage from "../assets/Group 3.png"
 
 export default function AuthHero({
   title = "Welcome to Legal Tasks Management and Monitoring Software",
@@ -18,11 +19,7 @@ export default function AuthHero({
 
       <div className="auth-hero__content">
         <div className="auth-hero__brand" aria-label="Logo">
-          <span className="auth-hero__brand-mark" aria-hidden="true">
-            <span className="auth-hero__brand-stroke auth-hero__brand-stroke--left" />
-            <span className="auth-hero__brand-stroke auth-hero__brand-stroke--right" />
-            <span className="auth-hero__brand-stroke auth-hero__brand-stroke--base" />
-          </span>
+          <img className='login-logo-img' src={logoImage} alt='logo-img' />
           <span className="auth-hero__brand-text">Logo</span>
         </div>
 

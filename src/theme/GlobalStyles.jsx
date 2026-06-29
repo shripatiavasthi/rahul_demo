@@ -70,6 +70,11 @@ export const GlobalStyles = createGlobalStyle`
     font: inherit;
   }
 
+  h1,
+  h2 {
+    font-weight: 500;
+  }
+
   img {
     display: block;
     max-width: 100%;
