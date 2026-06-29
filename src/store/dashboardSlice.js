@@ -2,7 +2,6 @@ import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
   isSidebarOpen: true,
-  workspaceView: 'dashboard',
   theme: 'light',
 }
 
@@ -16,9 +15,6 @@ const dashboardSlice = createSlice({
     toggleSidebar(state) {
       state.isSidebarOpen = !state.isSidebarOpen
     },
-    setWorkspaceView(state, action) {
-      state.workspaceView = action.payload
-    },
     setTheme(state, action) {
       state.theme = action.payload
     },
@@ -31,7 +27,6 @@ const dashboardSlice = createSlice({
 export const {
   setSidebarOpen,
   toggleSidebar,
-  setWorkspaceView,
   setTheme,
   resetDashboard,
 } = dashboardSlice.actions

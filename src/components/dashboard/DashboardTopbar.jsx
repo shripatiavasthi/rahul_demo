@@ -1,7 +1,51 @@
+import { useEffect, useRef, useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { clearAuthSession } from '../../lib/auth'
+import { clearCredentials } from '../../store/authSlice'
+import { resetDashboard } from '../../store/dashboardSlice'
 import DashboardBrandMark from './DashboardBrandMark'
 import DashboardIcon from './DashboardIcon'
 
 export default function DashboardTopbar({ theme = 'light', onThemeChange }) {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const menuRef = useRef(null)
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
+
+  useEffect(() => {
+    if (!isProfileMenuOpen) {
+      return undefined
+    }
+
+    const handlePointerDown = (event) => {
+      if (!menuRef.current?.contains(event.target)) {
+        setIsProfileMenuOpen(false)
+      }
+    }
+
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setIsProfileMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown)
+    document.addEventListener('keydown', handleEscape)
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown)
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [isProfileMenuOpen])
+
+  const handleLogout = () => {
+    clearAuthSession()
+    dispatch(clearCredentials())
+    dispatch(resetDashboard())
+    navigate('/login', { replace: true })
+  }
+
   return (
     <header className="dashboard-topbar">
       <DashboardBrandMark />
@@ -54,12 +98,43 @@ export default function DashboardTopbar({ theme = 'light', onThemeChange }) {
           <span className="dashboard-zoom__pill">100%</span>
         </div>
 
-        <button type="button" className="dashboard-profile" aria-label="Profile menu">
-          <span className="dashboard-profile__avatar" aria-hidden="true">
-            R
-          </span>
-          <DashboardIcon name="chevron-right" className="dashboard-profile__caret" />
-        </button>
+        <div className="dashboard-profile-menu" ref={menuRef}>
+          <button
+            type="button"
+            className="dashboard-profile"
+            aria-label="Profile menu"
+            aria-haspopup="menu"
+            aria-expanded={isProfileMenuOpen}
+            onClick={() => setIsProfileMenuOpen((currentState) => !currentState)}
+          >
+            <span className="dashboard-profile__avatar" aria-hidden="true">
+              R
+            </span>
+            <DashboardIcon name="chevron-right" className="dashboard-profile__caret" />
+          </button>
+
+          {isProfileMenuOpen ? (
+            <div className="dashboard-profile-dropdown" role="menu">
+              <button type="button" className="dashboard-profile-dropdown__item" role="menuitem">
+                <DashboardIcon name="user" />
+                <span>My Profile</span>
+              </button>
+              <button type="button" className="dashboard-profile-dropdown__item" role="menuitem">
+                <DashboardIcon name="headset" />
+                <span>Help</span>
+              </button>
+              <button
+                type="button"
+                className="dashboard-profile-dropdown__item"
+                role="menuitem"
+                onClick={handleLogout}
+              >
+                <DashboardIcon name="logout" />
+                <span>Logout</span>
+              </button>
+            </div>
+          ) : null}
+        </div>
       </div>
     </header>
   )

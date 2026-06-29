@@ -23,6 +23,13 @@ export default function DashboardIcon({ name, className = '' }) {
           <path d="M3.5 18.5c1.1-2.4 3-3.5 5.7-3.5s4.5 1.1 5.5 3.5M13.5 18.5c.7-1.6 2-2.5 4-2.5 1.3 0 2.3.3 3 .9" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
         </svg>
       )
+    case 'user':
+      return (
+        <svg viewBox="0 0 24 24" className={classes} aria-hidden="true">
+          <circle cx="12" cy="8.5" r="3.5" fill="none" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M5 19c1.5-3.1 4-4.5 7-4.5s5.5 1.4 7 4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        </svg>
+      )
     case 'settings':
       return (
         <svg viewBox="0 0 24 24" className={classes} aria-hidden="true">
@@ -167,6 +174,13 @@ export default function DashboardIcon({ name, className = '' }) {
       return (
         <svg viewBox="0 0 24 24" className={classes} aria-hidden="true">
           <path d="m7 7 10 10M17 7 7 17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      )
+    case 'logout':
+      return (
+        <svg viewBox="0 0 24 24" className={classes} aria-hidden="true">
+          <path d="M10 4.5H7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h3" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M13 8.5 18 12l-5 3.5M18 12H9" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       )
     case 'plus-circle':

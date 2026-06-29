@@ -16,6 +16,7 @@ export default function FormInput({
   action,
   endAdornment,
   hideLabel = false,
+  hideErrorMessage = false,
   ...rest
 }) {
   const errorId = error ? `${id}-error` : undefined;
@@ -90,7 +91,7 @@ export default function FormInput({
         {endAdornment ? endAdornment : null}
       </div>
 
-      {error ? (
+      {error && !hideErrorMessage ? (
         <p className="app-field__error" id={errorId}>
           {error}
         </p>

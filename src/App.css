@@ -753,6 +753,23 @@
   font-size: 0.96rem;
   cursor: pointer;
   text-align: center;
+  transition:
+    border-color 150ms ease,
+    background 150ms ease,
+    box-shadow 150ms ease,
+    color 150ms ease,
+    transform 150ms ease;
+}
+
+.signup-upload-card:hover {
+  transform: translateY(-1px);
+}
+
+.signup-upload-card--active {
+  border-color: rgba(39, 161, 173, 0.62);
+  background: linear-gradient(180deg, rgba(237, 252, 255, 0.96) 0%, rgba(229, 247, 250, 0.98) 100%);
+  color: #2b96a5;
+  box-shadow: 0 0 0 3px rgba(39, 161, 173, 0.08);
 }
 
 .signup-upload-card__icon {
@@ -760,6 +777,14 @@
   width: 76px;
   height: 76px;
   color: #7b8597;
+}
+
+.signup-upload-card--active .signup-upload-card__icon {
+  color: #2b96a5;
+}
+
+.signup-upload-card--active .signup-upload-card__upload-ring {
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .signup-upload-card__file {
@@ -930,9 +955,22 @@
 }
 
 .app-button:disabled {
-  cursor: wait;
-  opacity: 0.82;
+  cursor: not-allowed;
   transform: none;
+}
+
+.app-button--primary:disabled {
+  background: linear-gradient(180deg, #d5dce2 0%, #bcc7cf 100%);
+  color: rgba(255, 255, 255, 0.92);
+  box-shadow: none;
+  filter: none;
+}
+
+.app-button--secondary:disabled {
+  background: linear-gradient(180deg, #f2f3f5 0%, #ececef 100%);
+  color: #98a3b1;
+  box-shadow: none;
+  filter: none;
 }
 
 .signup-panel__footer {
@@ -1212,6 +1250,41 @@
   gap: 20px;
 }
 
+.auth-error-alert {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 64px;
+  padding: 16px 20px;
+  border: 1px solid rgba(255, 77, 79, 0.22);
+  border-radius: 18px;
+  background: rgba(255, 77, 79, 0.08);
+  color: #ff3b30;
+}
+
+.auth-error-alert--compact {
+  min-height: 60px;
+}
+
+.auth-error-alert__icon {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: inline-grid;
+  place-items: center;
+  border: 2px solid currentColor;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.auth-error-alert__message {
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
 .app-input--inline {
   display: flex;
   align-items: center;
@@ -1228,7 +1301,9 @@
 }
 
 .app-input--error {
+  border-width: 2px;
   border-color: var(--color-error);
+  box-shadow: 0 0 0 1px rgba(255, 77, 79, 0.04);
 }
 
 .app-input--error:focus-within {
@@ -1399,32 +1474,11 @@
     height: auto;
     border-radius: 0;
     border: 0;
+    box-shadow: none;
   }
 
   .auth-hero {
-    min-height: 220px;
-    padding: 24px 20px 28px;
-  }
-
-  .auth-hero__brand {
-    gap: 14px;
-  }
-
-  .auth-hero__brand-mark {
-    width: 68px;
-    height: 46px;
-  }
-
-  .auth-hero__brand-text {
-    font-size: 1.8rem;
-  }
-
-  .auth-hero h1 {
-    font-size: clamp(1.9rem, 10vw, 2.7rem);
-  }
-
-  .auth-hero__copy {
-    font-size: 0.98rem;
+    display: none;
   }
 
   .login-form__meta {
@@ -1433,13 +1487,21 @@
   }
 
   .login-form-panel {
-    margin: 16px;
+    margin: 0;
+    min-height: 100vh;
     padding: 28px 18px;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
   }
 
   .signup-panel {
-    margin: 16px;
+    margin: 0;
+    min-height: 100vh;
     padding: 26px 18px;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
   }
 
   .signup-form-grid--two {
@@ -1887,6 +1949,10 @@
   padding: 0;
 }
 
+.dashboard-profile-menu {
+  position: relative;
+}
+
 .dashboard-profile__avatar {
   width: 42px;
   height: 42px;
@@ -1904,6 +1970,50 @@
   height: 16px;
   color: #7f8a99;
   transform: rotate(90deg);
+}
+
+.dashboard-profile-dropdown {
+  position: absolute;
+  top: calc(100% + 14px);
+  right: 0;
+  min-width: 240px;
+  display: grid;
+  gap: 4px;
+  padding: 18px 16px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(215, 224, 233, 0.72);
+  box-shadow: 0 20px 50px rgba(29, 61, 76, 0.14);
+  z-index: 30;
+}
+
+.dashboard-profile-dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 52px;
+  border: 0;
+  border-radius: 16px;
+  padding: 0 14px;
+  background: transparent;
+  color: #6d7789;
+  font: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.dashboard-profile-dropdown__item:hover {
+  background: rgba(47, 169, 180, 0.08);
+  color: #31435a;
+}
+
+.dashboard-profile-dropdown__item .dashboard-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
 }
 
 .dashboard-layout {

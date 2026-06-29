@@ -1,11 +1,10 @@
 import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import DashboardOverview from '../components/dashboard/DashboardOverview'
 import DashboardSidebar from '../components/dashboard/DashboardSidebar'
 import DashboardTopbar from '../components/dashboard/DashboardTopbar'
-import OpenFilesWorkspace from '../components/dashboard/OpenFilesWorkspace'
 import {
   setTheme,
-  setWorkspaceView,
   toggleSidebar,
 } from '../store/dashboardSlice'
 
@@ -15,22 +14,6 @@ const quickActions = [
   { title: 'Workstation', icon: 'briefcase' },
   { title: 'Quick Search', icon: 'search' },
   { title: 'Advance Search', icon: 'filter' },
-]
-
-const fileTree = [
-  {
-    label: "File Information's",
-    expanded: true,
-    children: [
-      { label: 'Details', active: true, icon: 'folder-open' },
-      { label: 'Parties', icon: 'folder' },
-      { label: 'Property', icon: 'folder-doc' },
-      { label: 'Solicitor', icon: 'folder-plus' },
-      { label: 'Brokerage & Referral', icon: 'folder-plus' },
-      { label: 'Checklist', icon: 'folder-doc' },
-    ],
-  },
-  { label: 'Mortgagee', icon: 'folder' },
 ]
 
 const closings = [
@@ -73,7 +56,8 @@ const calendarDays = [
 
 export default function Home() {
   const dispatch = useDispatch()
-  const { isSidebarOpen, workspaceView, theme } = useSelector(
+  const navigate = useNavigate()
+  const { isSidebarOpen, theme } = useSelector(
     (state) => state.dashboard,
   )
 
@@ -86,26 +70,20 @@ export default function Home() {
         />
 
         <div
-          className={`dashboard-layout ${isSidebarOpen ? '' : 'dashboard-layout--sidebar-closed'} ${workspaceView === 'open-files' ? 'dashboard-layout--open-files' : ''}`.trim()}
+          className={`dashboard-layout ${isSidebarOpen ? '' : 'dashboard-layout--sidebar-closed'}`.trim()}
         >
-          {workspaceView !== 'open-files' ? (
-            <DashboardSidebar
-              isSidebarOpen={isSidebarOpen}
-              onToggle={() => dispatch(toggleSidebar())}
-            />
-          ) : null}
+          <DashboardSidebar
+            isSidebarOpen={isSidebarOpen}
+            onToggle={() => dispatch(toggleSidebar())}
+          />
 
-          {workspaceView === 'open-files' ? (
-            <OpenFilesWorkspace fileTree={fileTree} />
-          ) : (
-            <DashboardOverview
-              quickActions={quickActions}
-              closings={closings}
-              requisitions={requisitions}
-              calendarDays={calendarDays}
-              onOpenFiles={() => dispatch(setWorkspaceView('open-files'))}
-            />
-          )}
+          <DashboardOverview
+            quickActions={quickActions}
+            closings={closings}
+            requisitions={requisitions}
+            calendarDays={calendarDays}
+            onOpenFiles={() => navigate('/home/open-files')}
+          />
         </div>
       </div>
     </main>

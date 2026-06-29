@@ -4,6 +4,7 @@ import Login from './pages/Login'
 import About from './pages/About'
 import SignUp from './pages/SignUp'
 import Home from './pages/Home'
+import OpenFiles from './pages/OpenFiles'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -16,6 +17,14 @@ function App() {
         element={(
           <ProtectedRoute>
             <Home />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/home/open-files"
+        element={(
+          <ProtectedRoute>
+            <OpenFiles />
           </ProtectedRoute>
         )}
       />

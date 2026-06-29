@@ -1,16 +1,18 @@
 import { useState } from 'react'
-import { useDispatch } from 'react-redux'
-import { Link, useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import AppButton from '../components/AppButton'
+import AuthErrorAlert from '../components/AuthErrorAlert'
 import AuthHero from '../components/AuthHero'
 import FormInput from '../components/FormInput'
 import { loginUser } from '../lib/api'
 import { setCredentials } from '../store/authSlice'
+import { resetDashboard } from '../store/dashboardSlice'
 
 const initialValues = {
-  accountId: '',
-  userName: '',
-  password: '',
+  accountId: 'info@vsrglobalsolutions.com',
+  userName: 'admin',
+  password: 'vsr@123',
   rememberMe: false,
 }
 
@@ -35,11 +37,45 @@ function validate(values) {
 export default function Login() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const token = useSelector((state) => state.auth.token)
   const [values, setValues] = useState(initialValues)
   const [errors, setErrors] = useState({})
   const [showPassword, setShowPassword] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  if (token) {
+    return <Navigate to="/home" replace />
+  }
+
+  const visibleErrorMessage =
+    submitError ||
+    errors.accountId ||
+    errors.userName ||
+    errors.password ||
+    ''
+
+  const fieldHasSubmitError = (fieldName) => {
+    if (!submitError) {
+      return false
+    }
+
+    const normalizedMessage = submitError.toLowerCase()
+
+    if (normalizedMessage.includes('account')) {
+      return fieldName === 'accountId'
+    }
+
+    if (normalizedMessage.includes('user')) {
+      return fieldName === 'userName'
+    }
+
+    if (normalizedMessage.includes('password')) {
+      return fieldName === 'password'
+    }
+
+    return true
+  }
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target
@@ -86,8 +122,9 @@ export default function Login() {
         user: response.user,
         rememberMe: values.rememberMe,
       }))
+      dispatch(resetDashboard())
 
-      navigate('/home')
+      navigate('/home', { replace: true })
     } catch (error) {
       setSubmitError(error.message)
     } finally {
@@ -107,6 +144,8 @@ export default function Login() {
           </div>
 
           <form className="login-form" onSubmit={handleSubmit} noValidate>
+            <AuthErrorAlert message={visibleErrorMessage} />
+
             <FormInput
               id="accountId"
               name="accountId"
@@ -115,7 +154,8 @@ export default function Login() {
               placeholder="Account ID"
               value={values.accountId}
               onChange={handleChange}
-              error={errors.accountId}
+              error={errors.accountId || (fieldHasSubmitError('accountId') ? submitError : '')}
+              hideErrorMessage
             />
 
             <FormInput
@@ -126,7 +166,8 @@ export default function Login() {
               placeholder="User Name"
               value={values.userName}
               onChange={handleChange}
-              error={errors.userName}
+              error={errors.userName || (fieldHasSubmitError('userName') ? submitError : '')}
+              hideErrorMessage
             />
 
             <FormInput
@@ -138,7 +179,8 @@ export default function Login() {
               placeholder="Password"
               value={values.password}
               onChange={handleChange}
-              error={errors.password}
+              error={errors.password || (fieldHasSubmitError('password') ? submitError : '')}
+              hideErrorMessage
               action={{
                 label: showPassword ? 'Hide' : 'View',
                 ariaLabel: showPassword ? 'Hide password' : 'View password',
@@ -162,13 +204,6 @@ export default function Login() {
                 Forgot Password?
               </a>
             </div>
-
-            {submitError ? (
-              <p className="app-field__error" role="alert">
-                {submitError}
-              </p>
-            ) : null}
-
             <AppButton className="login-form__submit" type="submit">
               {isSubmitting ? 'Logging In...' : 'Log In'}
             </AppButton>

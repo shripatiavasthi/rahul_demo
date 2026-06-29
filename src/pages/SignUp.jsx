@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import AccountCreationModal from '../components/AccountCreationModal'
 import AppButton from '../components/AppButton'
+import AuthErrorAlert from '../components/AuthErrorAlert'
 import AuthHero from '../components/AuthHero'
 import FormInput from '../components/FormInput'
 import { registerUser } from '../lib/api'
@@ -31,6 +32,10 @@ function downloadTextFile(content, fileName) {
   link.download = fileName
   link.click()
   URL.revokeObjectURL(blobUrl)
+}
+
+function hasValue(value) {
+  return typeof value === 'string' ? value.trim().length > 0 : Boolean(value)
 }
 
 export default function SignUp() {
@@ -169,6 +174,32 @@ export default function SignUp() {
       navigate('/login')
     }
   }
+
+  const isStepOneComplete = [
+    values.firstName,
+    values.lastName,
+    values.firmName,
+    values.addressSearch,
+    values.city,
+    values.state,
+    values.postalCode,
+    values.country,
+  ].every(hasValue)
+
+  const isStepTwoComplete = [
+    values.lawyerName,
+    values.licenseNumber,
+    values.jurisdictionType,
+    values.accountType,
+  ].every(hasValue)
+
+  const isStepThreeComplete = [
+    values.paymentMethod,
+    values.cardholderName,
+    values.cardNumber,
+  ].every(hasValue)
+
+  const isStepFourComplete = values.authorizationUploaded
 
   return (
     <main className="signup-shell">
@@ -318,7 +349,7 @@ export default function SignUp() {
                 </div>
               </div>
 
-              <AppButton className="signup-panel__button" type="submit">
+              <AppButton className="signup-panel__button" type="submit" disabled={!isStepOneComplete}>
                 Next
               </AppButton>
             </form>
@@ -406,7 +437,7 @@ export default function SignUp() {
                 >
                   Back
                 </AppButton>
-                <AppButton className="signup-panel__button" type="submit">
+                <AppButton className="signup-panel__button" type="submit" disabled={!isStepTwoComplete}>
                   Next
                 </AppButton>
               </div>
@@ -525,7 +556,7 @@ export default function SignUp() {
                 >
                   Back
                 </AppButton>
-                <AppButton className="signup-panel__button" type="submit">
+                <AppButton className="signup-panel__button" type="submit" disabled={!isStepThreeComplete}>
                   Next
                 </AppButton>
               </div>
@@ -548,6 +579,8 @@ export default function SignUp() {
               </div>
 
               <div className="signup-step-final">
+                <AuthErrorAlert message={submitError} className="auth-error-alert--compact" />
+
                 <button
                   type="button"
                   className="signup-download-card"
@@ -572,7 +605,7 @@ export default function SignUp() {
 
                 <button
                   type="button"
-                  className="signup-upload-card"
+                  className={`signup-upload-card ${values.authorizationUploaded ? 'signup-upload-card--active' : ''}`.trim()}
                   onClick={() => dispatch(setSignupValues({ authorizationUploaded: true }))}
                 >
                   <span className="signup-upload-card__icon" aria-hidden="true">
@@ -609,11 +642,14 @@ export default function SignUp() {
                 >
                   Back
                 </AppButton>
-                <AppButton className="signup-panel__button" type="submit" disabled={isSubmitting}>
+                <AppButton
+                  className="signup-panel__button"
+                  type="submit"
+                  disabled={!isStepFourComplete || isSubmitting}
+                >
                   {isSubmitting ? 'Submitting...' : 'Submit'}
                 </AppButton>
               </div>
-              {submitError ? <p className="auth-form-feedback auth-form-feedback--error">{submitError}</p> : null}
             </form>
           )}
 

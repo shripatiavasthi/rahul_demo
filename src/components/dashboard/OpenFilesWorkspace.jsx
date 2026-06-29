@@ -1,11 +1,16 @@
 import DashboardIcon from './DashboardIcon'
 
-export default function OpenFilesWorkspace({ fileTree }) {
+export default function OpenFilesWorkspace({ fileTree, onGoHome }) {
   return (
     <section className="dashboard-open-files">
       <header className="dashboard-open-files__toolbar">
         <div className="dashboard-open-files__toolbar-left">
-          <button type="button" className="dashboard-open-files__home-button" aria-label="Open files home">
+          <button
+            type="button"
+            className="dashboard-open-files__home-button"
+            aria-label="Go to dashboard home"
+            onClick={onGoHome}
+          >
             <DashboardIcon name="home" />
           </button>
           <button type="button" className="dashboard-open-files__add-button">
